@@ -83,7 +83,7 @@ public class AddCommand implements CommandExecutor
                 }
             }
         };
-        r.run();
+        r.runTaskAsynchronously(plugin);
         return true;
 
     }

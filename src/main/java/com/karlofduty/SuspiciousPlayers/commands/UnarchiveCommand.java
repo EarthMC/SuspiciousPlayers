@@ -98,7 +98,7 @@ public class UnarchiveCommand implements CommandExecutor
 				}
 			}
 		};
-		r.run();
+		r.runTaskAsynchronously(plugin);
 		return true;
 	}
 }
