@@ -1,93 +1,142 @@
 package com.karlofduty.SuspiciousPlayers;
 
 import com.karlofduty.SuspiciousPlayers.commands.AddCommand;
+import com.karlofduty.SuspiciousPlayers.commands.ArchiveCommand;
+import com.karlofduty.SuspiciousPlayers.commands.ListCommand;
+import com.karlofduty.SuspiciousPlayers.commands.UnarchiveCommand;
+import com.karlofduty.SuspiciousPlayers.listeners.JoinListener;
+import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.UUID;
+
+import static org.bukkit.ChatColor.*;
 
 public class SuspiciousPlayers extends JavaPlugin
 {
     public static SuspiciousPlayers instance;
-    public Connection connection;
+    public static SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-    private HashMap<String, String> currentList = new HashMap<>();
-    private HashMap<String, String> archivedList = new HashMap<>();
-    private String host = "localhost";
+    private HikariDataSource datasource;
+    private String hostname = "localhost";
     private int port = 3306;
     private String database = "suspiciousplayers";
-    private String username = "karl";
-    private String password = "hello";
+    private String username = "suspbois";
+    private String password = "waddup";
 
     @Override
     public void onEnable()
     {
         instance = this;
-        BukkitRunnable r = new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    openConnection();
-                    Statement statement = connection.createStatement();
-                    statement.executeUpdate("CREATE TABLE IF NOT EXISTS active_entries(" +
-                            "created TIMESTAMP NOT NULL UNIQUE," +
-                            "creator_uuid VARCHAR(36) NOT NULL," +
-                            "suspicious_uuid VARCHAR(36) NOT NULL," +
-                            "entry VARCHAR(2000) NOT NULL)");
 
-                    statement.executeUpdate("CREATE TABLE IF NOT EXISTS archived_entries(" +
-                            "archived TIMESTAMP NOT NULL UNIQUE," +
-                            "archiver_uuid VARCHAR(36) NOT NULL," +
-                            "created TIMESTAMP NOT NULL UNIQUE," +
-                            "staff_uuid VARCHAR(36) NOT NULL," +
-                            "suspicious_uuid VARCHAR(36) NOT NULL," +
-                            "entry VARCHAR(2000) NOT NULL)");
-                }
-                catch (ClassNotFoundException e)
-                {
-                    e.printStackTrace();
-                }
-                catch (SQLException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        };
-        r.run();
-        // TODO: Create command handler
-        this.getCommand("suspadd").setExecutor(new AddCommand(this));
+        connect();
+        createTables();
+
+        try
+        {
+            this.getCommand("suspadd").setExecutor(new AddCommand(this));
+            this.getCommand("susplist").setExecutor(new ListCommand(this));
+            this.getCommand("susparchive").setExecutor(new ArchiveCommand(this));
+            this.getCommand("suspunarchive").setExecutor(new UnarchiveCommand(this));
+        }
+        catch (NullPointerException e)
+        {
+            e.printStackTrace();
+        }
+        getServer().getPluginManager().registerEvents(new JoinListener(), this);
         log("Suspicious Players Loaded.");
     }
 
-    public void openConnection() throws SQLException, ClassNotFoundException
-    {
-        if (connection != null && !connection.isClosed())
-        {
-            return;
-        }
 
-        synchronized (this)
+    public void notify(String message)
+    {
+        for (Player player : Bukkit.getOnlinePlayers())
         {
-            if (connection != null && !connection.isClosed())
+            if(player.hasPermission("susp.notify"))
             {
-                return;
+                player.sendMessage(message);
             }
-            Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection("jdbc:mysql://" + this.host+ ":" + this.port + "/" + this.database, this.username, this.password);
+        }
+    }
+
+    public Connection getConnection() throws SQLException
+    {
+        return datasource.getConnection();
+    }
+
+    private void connect()
+    {
+        datasource = new HikariDataSource();
+        datasource.setDataSourceClassName("org.mariadb.jdbc.MariaDbDataSource");
+        datasource.addDataSourceProperty("serverName", hostname);
+        datasource.addDataSourceProperty("port", port);
+        datasource.addDataSourceProperty("databaseName", database);
+        datasource.addDataSourceProperty("user", username);
+        datasource.addDataSourceProperty("password", password);
+    }
+
+    private void createTables()
+    {
+        try (Connection connection = datasource.getConnection(); Statement statement = connection.createStatement())
+        {
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS active_entries(" +
+                "id INT UNSIGNED NOT NULL UNIQUE PRIMARY KEY AUTO_INCREMENT," +
+                "created_time TIMESTAMP NOT NULL," +
+                "creator_uuid VARCHAR(36) NOT NULL," +
+                "suspicious_uuid VARCHAR(36) NOT NULL," +
+                "entry VARCHAR(2000) NOT NULL," +
+                "INDEX(suspicious_uuid))");
+
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS archived_entries(" +
+                "id INT UNSIGNED NOT NULL UNIQUE PRIMARY KEY AUTO_INCREMENT," +
+                "archived_time TIMESTAMP NOT NULL," +
+                "archiver_uuid VARCHAR(36) NOT NULL," +
+                "created_time TIMESTAMP NOT NULL," +
+                "creator_uuid VARCHAR(36) NOT NULL," +
+                "suspicious_uuid VARCHAR(36) NOT NULL," +
+                "entry VARCHAR(2000) NOT NULL," +
+                "INDEX(suspicious_uuid))");
+
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS deleted_entries(" +
+                "id INT UNSIGNED NOT NULL UNIQUE PRIMARY KEY AUTO_INCREMENT," +
+                "deleted_time TIMESTAMP NOT NULL," +
+                "deleter_uuid VARCHAR(36) NOT NULL," +
+                "created_time TIMESTAMP NOT NULL," +
+                "creator_uuid VARCHAR(36) NOT NULL," +
+                "suspicious_uuid VARCHAR(36) NOT NULL," +
+                "entry VARCHAR(2000) NOT NULL," +
+                "INDEX(suspicious_uuid))");
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
         }
     }
 
     public static boolean executeCommand(String command)
     {
         return instance.getServer().dispatchCommand(instance.getServer().getConsoleSender(), command);
+    }
+
+    public static boolean isInt(String s)
+    {
+        try
+        {
+            Integer.parseInt(s);
+        }
+        catch(NumberFormatException e)
+        {
+            return false;
+        }
+        return true;
     }
 
     public static void log(String message)
