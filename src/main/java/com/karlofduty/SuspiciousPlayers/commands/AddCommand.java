@@ -2,15 +2,15 @@ package com.karlofduty.SuspiciousPlayers.commands;
 
 import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import static org.bukkit.ChatColor.*;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
 
 public class AddCommand implements CommandExecutor
@@ -22,21 +22,36 @@ public class AddCommand implements CommandExecutor
     }
 
     @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args)
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
     {
-        //TODO: Make async
-        if (commandSender.hasPermission("susp.add"))
+        if (!sender.hasPermission("susp.add"))
         {
-            if (args.length > 1)
+            sender.sendMessage(RED + "You are not allowed to use that command.");
+            return true;
+        }
+
+        if (args.length < 2)
+        {
+            sender.sendMessage(RED + "Invalid arguments.");
+            sender.sendMessage(RED + "Usage: " + command.getUsage());
+            return false;
+        }
+
+        final String creatorUUID =  sender instanceof Player ? ((Player)sender).getUniqueId().toString() : "console";
+
+        final OfflinePlayer op = Bukkit.getOfflinePlayer(args[0]);
+        if (!op.hasPlayedBefore())
+        {
+            sender.sendMessage(RED + "Can not find a player by that name, make sure you are using their current username.");
+            return true;
+        }
+
+        BukkitRunnable r = new BukkitRunnable()
+        {
+            @Override
+            public void run()
             {
-                String creatorUUID = "console";
-                if(commandSender instanceof Player)
-                {
-                    creatorUUID = ((Player)commandSender).getUniqueId().toString();
-                }
-                String username = args[0];
-                OfflinePlayer op = Bukkit.getOfflinePlayer(username);
-                if (op.hasPlayedBefore())
+                try
                 {
                     String suspiciousUUID = op.getUniqueId().toString();
 
@@ -44,30 +59,33 @@ public class AddCommand implements CommandExecutor
                     argumentList.remove(0);
                     String playerEntry = String.join(" ", argumentList);
 
-                    try
+                    try(Connection c = plugin.getConnection())
                     {
-                        Statement statement = plugin.connection.createStatement();
-                        statement.executeUpdate("INSERT INTO active_entries(creator_uuid, suspicious_uuid, entry) VALUES ('" + creatorUUID + "', '" + suspiciousUUID + "', '" + playerEntry + "' )");
+                        PreparedStatement statement = c.prepareStatement("INSERT INTO active_entries(created_time, creator_uuid, suspicious_uuid, entry) VALUES (?,?,?,?)");
+                        statement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+                        statement.setString(2, creatorUUID);
+                        statement.setString(3, suspiciousUUID);
+                        statement.setString(4, playerEntry);
+                        statement.executeUpdate();
+
+                        sender.sendMessage(YELLOW + "Entry added.");
                     }
                     catch (SQLException e)
                     {
+                        sender.sendMessage(RED + "Error occurred while adding entry to database. " + e.getMessage());
                         e.printStackTrace();
                     }
                 }
-                else
+                catch (Exception e)
                 {
-                    commandSender.sendMessage(ChatColor.RED + "Can not find a player by that name, make sure you are using their current username.");
+                    sender.sendMessage(RED + "Error occurred while preparing to add entry. " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
-            else
-            {
-                commandSender.sendMessage(ChatColor.RED + "Invalid arguments.");
-            }
-        }
-        else
-        {
-            commandSender.sendMessage(ChatColor.RED + "You are not allowed to use that command.");
-        }
+        };
+        r.run();
         return true;
+
     }
+
 }
