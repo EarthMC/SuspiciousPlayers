@@ -1,9 +1,6 @@
 package com.karlofduty.SuspiciousPlayers;
 
-import com.karlofduty.SuspiciousPlayers.commands.AddCommand;
-import com.karlofduty.SuspiciousPlayers.commands.ArchiveCommand;
-import com.karlofduty.SuspiciousPlayers.commands.ListCommand;
-import com.karlofduty.SuspiciousPlayers.commands.UnarchiveCommand;
+import com.karlofduty.SuspiciousPlayers.commands.*;
 import com.karlofduty.SuspiciousPlayers.listeners.JoinListener;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
@@ -13,12 +10,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.UUID;
-
-import static org.bukkit.ChatColor.*;
+import java.util.Objects;
 
 public class SuspiciousPlayers extends JavaPlugin
 {
@@ -40,17 +33,11 @@ public class SuspiciousPlayers extends JavaPlugin
         connect();
         createTables();
 
-        try
-        {
-            this.getCommand("suspadd").setExecutor(new AddCommand(this));
-            this.getCommand("susplist").setExecutor(new ListCommand(this));
-            this.getCommand("susparchive").setExecutor(new ArchiveCommand(this));
-            this.getCommand("suspunarchive").setExecutor(new UnarchiveCommand(this));
-        }
-        catch (NullPointerException e)
-        {
-            e.printStackTrace();
-        }
+        Objects.requireNonNull(this.getCommand("suspadd")).setExecutor(new AddCommand(this));
+        Objects.requireNonNull(this.getCommand("susplist")).setExecutor(new ListCommand(this));
+        Objects.requireNonNull(this.getCommand("susparchive")).setExecutor(new ArchiveCommand(this));
+        Objects.requireNonNull(this.getCommand("suspunarchive")).setExecutor(new UnarchiveCommand(this));
+        Objects.requireNonNull(this.getCommand("suspdelete")).setExecutor(new DeleteCommand(this));
         getServer().getPluginManager().registerEvents(new JoinListener(), this);
         log("Suspicious Players Loaded.");
     }
@@ -109,6 +96,8 @@ public class SuspiciousPlayers extends JavaPlugin
                 "id INT UNSIGNED NOT NULL UNIQUE PRIMARY KEY AUTO_INCREMENT," +
                 "deleted_time TIMESTAMP NOT NULL," +
                 "deleter_uuid VARCHAR(36) NOT NULL," +
+                "archived_time TIMESTAMP NOT NULL," +
+                "archiver_uuid VARCHAR(36) NOT NULL," +
                 "created_time TIMESTAMP NOT NULL," +
                 "creator_uuid VARCHAR(36) NOT NULL," +
                 "suspicious_uuid VARCHAR(36) NOT NULL," +

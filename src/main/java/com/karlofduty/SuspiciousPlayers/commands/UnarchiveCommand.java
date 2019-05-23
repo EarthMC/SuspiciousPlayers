@@ -9,7 +9,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.*;
-import java.util.Date;
 
 import static org.bukkit.ChatColor.*;
 
@@ -62,7 +61,7 @@ public class UnarchiveCommand implements CommandExecutor
 							try
 							{
 								PreparedStatement insertStatement = c.prepareStatement("INSERT INTO active_entries(created_time, creator_uuid, suspicious_uuid, entry) VALUES (?,?,?,?)");
-								insertStatement.setString(1, selectResults.getString("created_time"));
+								insertStatement.setTimestamp(1, selectResults.getTimestamp("created_time"));
 								insertStatement.setString(2, selectResults.getString("creator_uuid"));
 								insertStatement.setString(3, selectResults.getString("suspicious_uuid"));
 								insertStatement.setString(4, selectResults.getString("entry"));

@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.*;
-import java.util.Date;
 
 import static org.bukkit.ChatColor.*;
 
@@ -66,7 +65,7 @@ public class ArchiveCommand implements CommandExecutor
                                 PreparedStatement insertStatement = c.prepareStatement("INSERT INTO archived_entries(archived_time, archiver_uuid, created_time, creator_uuid, suspicious_uuid, entry) VALUES (?,?,?,?,?,?)");
                                 insertStatement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
                                 insertStatement.setString(2, archiverUUID);
-                                insertStatement.setString(3, selectResults.getString("created_time"));
+                                insertStatement.setTimestamp(3, selectResults.getTimestamp("created_time"));
                                 insertStatement.setString(4, selectResults.getString("creator_uuid"));
                                 insertStatement.setString(5, selectResults.getString("suspicious_uuid"));
                                 insertStatement.setString(6, selectResults.getString("entry"));
