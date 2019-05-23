@@ -1,5 +1,6 @@
 name: SuspiciousPlayers
-version: 0.1.0
+version: ${project.version}
+description: ${project.description}
 api-version: 1.13
 author: Karl Essinger (KarlofDuty)
 website: http://karlofduty.com
@@ -18,6 +19,9 @@ permissions:
   susp.archive:
     description: Player can archive listings in the suspicious players list.
     default: op
+  susp.unarchive:
+    description: Player can unarchive listings in the suspicious players list.
+    default: op
   susp.list:
     description: Player can add others to the suspicious players list.
     default: op
@@ -25,3 +29,12 @@ commands:
   suspadd:
     description: Adds an entry that a player is suspicious
     usage: /suspadd <username> <description>
+  susplist:
+    description: Lists all entries on a specific player.
+    usage: /susplist <username>
+  susparchive:
+    description: Archives an entry from a user's susplist.
+    usage: /susparchive <username> <listnumber>
+  suspunarchive:
+    description: Unarchives an entry from a user's susplist.
+    usage: /suspunarchive <username> <archivedlistnumber>
