@@ -69,7 +69,7 @@ public class AddCommand implements CommandExecutor
                         statement.setString(4, playerEntry);
                         statement.executeUpdate();
 
-                        sender.sendMessage(YELLOW + "Entry added.");
+                        sender.sendMessage(GREEN + "Entry added.");
                     }
                     catch (SQLException e)
                     {

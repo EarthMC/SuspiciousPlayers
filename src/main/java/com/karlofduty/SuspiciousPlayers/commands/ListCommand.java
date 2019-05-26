@@ -101,7 +101,7 @@ public class ListCommand implements CommandExecutor
                     {
                         message = message.substring(0,message.length() - 2);
                     }
-                    sender.sendMessage(GOLD + "Displaying (Max: " + YELLOW + maxEntries + GOLD + ") entries for " + YELLOW + op.getName() + GOLD + ":\n" + message);
+                    sender.sendMessage(GOLD + "----- Displaying (Max: " + YELLOW + maxEntries + GOLD + ") entries for " + YELLOW + op.getName() + GOLD + " -----\n" + message);
 
                 }
                 catch (SQLException e)

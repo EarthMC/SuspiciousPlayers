@@ -19,11 +19,6 @@ public class SuspiciousPlayers extends JavaPlugin
     public FileConfiguration config;
 
     private HikariDataSource datasource;
-    //private String hostname = "localhost";
-    //private int port = 3306;
-    //private String database = "suspiciousplayers";
-    //private String username = "suspbois";
-    //private String password = "waddup";
 
     @Override
     public void onEnable()
@@ -64,7 +59,7 @@ public class SuspiciousPlayers extends JavaPlugin
     private void connect()
     {
         datasource = new HikariDataSource();
-        datasource.setDataSourceClassName("mariadb".equals(config.getString("database.type").toLowerCase()) ? "org.mariadb.jdbc.MariaDbDataSource" : "com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
+        datasource.setDataSourceClassName("mariadb".equalsIgnoreCase(config.getString("database.type")) ? "org.mariadb.jdbc.MariaDbDataSource" : "com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
         datasource.addDataSourceProperty("serverName", config.getString("database.hostname"));
         datasource.addDataSourceProperty("port", config.getInt("database.port"));
         datasource.addDataSourceProperty("databaseName", config.getString("database.name"));
