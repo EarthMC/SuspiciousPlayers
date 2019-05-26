@@ -4,31 +4,33 @@ import com.karlofduty.SuspiciousPlayers.commands.*;
 import com.karlofduty.SuspiciousPlayers.listeners.JoinListener;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.Objects;
 
 public class SuspiciousPlayers extends JavaPlugin
 {
     public static SuspiciousPlayers instance;
-    public static SimpleDateFormat displayDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    public FileConfiguration config;
 
     private HikariDataSource datasource;
-    private String hostname = "localhost";
-    private int port = 3306;
-    private String database = "suspiciousplayers";
-    private String username = "suspbois";
-    private String password = "waddup";
+    //private String hostname = "localhost";
+    //private int port = 3306;
+    //private String database = "suspiciousplayers";
+    //private String username = "suspbois";
+    //private String password = "waddup";
 
     @Override
     public void onEnable()
     {
         instance = this;
+        this.saveDefaultConfig();
+        config = this.getConfig();
 
         connect();
         createTables();
@@ -62,12 +64,12 @@ public class SuspiciousPlayers extends JavaPlugin
     private void connect()
     {
         datasource = new HikariDataSource();
-        datasource.setDataSourceClassName("org.mariadb.jdbc.MariaDbDataSource");
-        datasource.addDataSourceProperty("serverName", hostname);
-        datasource.addDataSourceProperty("port", port);
-        datasource.addDataSourceProperty("databaseName", database);
-        datasource.addDataSourceProperty("user", username);
-        datasource.addDataSourceProperty("password", password);
+        datasource.setDataSourceClassName("mariadb".equals(config.getString("database.type").toLowerCase()) ? "org.mariadb.jdbc.MariaDbDataSource" : "com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
+        datasource.addDataSourceProperty("serverName", config.getString("database.hostname"));
+        datasource.addDataSourceProperty("port", config.getInt("database.port"));
+        datasource.addDataSourceProperty("databaseName", config.getString("database.name"));
+        datasource.addDataSourceProperty("user", config.getString("database.user"));
+        datasource.addDataSourceProperty("password", config.getString("database.password"));
     }
 
     private void createTables()
