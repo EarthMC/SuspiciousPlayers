@@ -6,7 +6,7 @@
 
     <groupId>com.karlofduty</groupId>
     <artifactId>SuspiciousPlayers</artifactId>
-    <version>0.5.0</version>
+    <version>0.6.0</version>
     <description>A spigot plugin used to tag suspicious players.</description>
 
     <repositories>

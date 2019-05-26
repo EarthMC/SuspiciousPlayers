@@ -3,6 +3,8 @@ package com.karlofduty.SuspiciousPlayers;
 import com.karlofduty.SuspiciousPlayers.commands.*;
 import com.karlofduty.SuspiciousPlayers.listeners.JoinListener;
 import com.zaxxer.hikari.HikariDataSource;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -39,6 +41,16 @@ public class SuspiciousPlayers extends JavaPlugin
         log("Suspicious Players Loaded.");
     }
 
+    public void notify(BaseComponent[] message)
+    {
+        for (Player player : Bukkit.getOnlinePlayers())
+        {
+            if(player.hasPermission("susp.notify"))
+            {
+                player.spigot().sendMessage(message);
+            }
+        }
+    }
 
     public void notify(String message)
     {

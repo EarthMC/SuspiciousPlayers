@@ -1,9 +1,12 @@
 package com.karlofduty.SuspiciousPlayers.listeners;
 
+import com.karlofduty.SuspiciousPlayers.JSONChatBuilder;
 import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
-import static org.bukkit.ChatColor.*;
 
 import com.karlofduty.SuspiciousPlayers.models.ActiveEntry;
+import static net.md_5.bungee.api.ChatColor.*;
+
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -39,7 +42,10 @@ public class JoinListener implements Listener
                     }
                     else if(count > 1)
                     {
-                        SuspiciousPlayers.instance.notify(RED + event.getPlayer().getName() + " has been marked as suspicious " + count + " times!\nDo " + YELLOW + "/susplist " + event.getPlayer().getName() + RED + " to see why.");
+                        SuspiciousPlayers.instance.notify(ComponentSerializer.parse( "[" +
+                                JSONChatBuilder.plainText(event.getPlayer().getName() + " has been marked as suspicious " + count + " times!\nDo ", RED) + ',' +
+                                JSONChatBuilder.runCommand(YELLOW + "/susplist " + event.getPlayer().getName(), "/susplist " + event.getPlayer().getName()) + ',' +
+                                JSONChatBuilder.plainText(" to see why.", RED) + "]"));
                     }
                 }
                 catch (SQLException e)
