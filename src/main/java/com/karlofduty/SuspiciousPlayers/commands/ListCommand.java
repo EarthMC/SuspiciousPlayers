@@ -1,6 +1,9 @@
 package com.karlofduty.SuspiciousPlayers.commands;
 
 import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
+import com.karlofduty.SuspiciousPlayers.models.ActiveEntry;
+import com.karlofduty.SuspiciousPlayers.models.ArchivedEntry;
+import com.karlofduty.SuspiciousPlayers.models.PlayerEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -44,41 +47,61 @@ public class ListCommand implements CommandExecutor
         }
 
         String suspiciousUUID = op.getUniqueId().toString();
+        int maxEntries = args.length >= 2 && SuspiciousPlayers.isInt(args[1]) ? Integer.parseInt(args[1]) : 10;
         BukkitRunnable r = new BukkitRunnable()
         {
             @Override
             public void run()
             {
-                int max = 10;
-                if(args.length >= 2 && SuspiciousPlayers.isInt(args[1]))
-                {
-                    max = Integer.parseInt(args[1]);
-                }
-
                 try(Connection c = SuspiciousPlayers.instance.getConnection())
                 {
-                    // Reads all active entries about the player
-                    ResultSet activeListResults = c.createStatement().executeQuery("SELECT * FROM active_entries WHERE suspicious_uuid = '" + suspiciousUUID + "' ORDER BY created_time;");
-                    ArrayList<String> activeEntries = formatActiveEntries(activeListResults);
+                    ArrayList<PlayerEntry> entries = new ArrayList<>();
 
-                    // Read archived entries if the active ones didnt meet the maximum to be displayed
-                    ArrayList<String> archivedEntries = new ArrayList<>();
-                    if(activeEntries.size() < max)
+                    // Reads all active entries about the player
+                    PreparedStatement statement = c.prepareStatement(ActiveEntry.SELECT);
+                    statement.setString(1, suspiciousUUID);
+                    statement.setInt(2, maxEntries);
+                    ResultSet activeResults = statement.executeQuery();
+
+                    while(activeResults.next())
                     {
-                        ResultSet archivedListResults = c.createStatement().executeQuery("SELECT * FROM archived_entries WHERE suspicious_uuid = '" + suspiciousUUID + "' ORDER BY created_time;");
-                        archivedEntries = formatArchivedEntries(archivedListResults);
+                        entries.add(new ActiveEntry(activeResults));
+                    }
+
+                    // Reads archived entries about the player if there are still spots open in the list
+                    if(entries.size() < maxEntries)
+                    {
+
+                        statement = c.prepareStatement(ArchivedEntry.SELECT);
+                        statement.setString(1, suspiciousUUID);
+                        statement.setInt(2, maxEntries - entries.size());
+                        ResultSet archiveResults = statement.executeQuery();
+
+                        while(archiveResults.next())
+                        {
+                            entries.add(new ArchivedEntry(archiveResults));
+                        }
                     }
 
                     // Send feedback message if there are no entries
-                    if(activeEntries.isEmpty() && archivedEntries.isEmpty())
+                    if(entries.isEmpty())
                     {
                         sender.sendMessage(RED + "User does not have any entries.");
                         return;
                     }
 
                     // Builds the message and sends it
-                    String list = buildMessage(activeEntries, archivedEntries, max);
-                    sender.sendMessage(GOLD + "Displaying (Max: " + YELLOW + max + GOLD + ") entries for " + RED + op.getName() + GOLD + ":\n" + list);
+                    StringBuilder sb = new StringBuilder();
+                    for (PlayerEntry entry : entries)
+                    {
+                        sb.append(entry.getFormattedString());
+                    }
+                    String message = sb.toString();
+                    if(message.endsWith(" \n"))
+                    {
+                        message = message.substring(0,message.length() - 2);
+                    }
+                    sender.sendMessage(GOLD + "Displaying (Max: " + YELLOW + maxEntries + GOLD + ") entries for " + YELLOW + op.getName() + GOLD + ":\n" + message);
 
                 }
                 catch (SQLException e)
@@ -92,69 +115,46 @@ public class ListCommand implements CommandExecutor
         return true;
     }
 
-    private String buildMessage(ArrayList<String> active, ArrayList<String> archived, int max)
-    {
-        StringBuilder message = new StringBuilder();
+    //private String buildMessage(ArrayList<String> active, ArrayList<String> archived, int max)
+    //{
+    //    StringBuilder message = new StringBuilder();
+//
+    //    int i = 1;
+    //    for(;i <= max && i <= active.size(); i++)
+    //    {
+    //        message.append(active.get(active.size()));
+    //    }
+//
+    //    for(; i <= max && i <= archived.size(); i++)
+    //    {
+    //        message.append(archived.get(i - 1));
+    //    }
+//
+    //    return message.toString();
+    //}
 
-        int i = 1;
-        for(;i <= max && i <= active.size(); i++)
-        {
-            message.append(active.get(active.size() - i));
-        }
-
-        for(; i <= max && i <= archived.size(); i++)
-        {
-            message.append(archived.get(archived.size() - i));
-        }
-
-        return message.toString();
-    }
-
-    private ArrayList<String> formatActiveEntries(ResultSet results) throws SQLException
-    {
-        ArrayList<String> entries = new ArrayList<>();
-        while(results.next())
-        {
-            String username = getUsername(results.getString("creator_uuid"));
-
-            entries.add(buildEntryString(results.getTimestamp("created_time"), username, results.getString("entry")));
-        }
-        return entries;
-    }
-
-    private ArrayList<String> formatArchivedEntries(ResultSet results) throws SQLException
-    {
-        ArrayList<String> entries = new ArrayList<>();
-        while(results.next())
-        {
-            String creatorUsername = getUsername(results.getString("creator_uuid"));
-            String archiverUsername = getUsername(results.getString("archiver_uuid"));
-
-            entries.add(buildArchivedEntryString(results.getTimestamp("archived_time"), archiverUsername, results.getTimestamp("created_time"), creatorUsername, results.getString("entry")));
-        }
-        return entries;
-    }
-
-    public static String buildEntryString(Timestamp createdTime, String creatorName, String entry)
-    {
-        return GREEN + "Reported: [" + SuspiciousPlayers.displayDateFormat.format(createdTime) + "] UTC by " + GOLD + creatorName + ":\n" +
-                YELLOW + entry + '\n';
-    }
-    private static String buildArchivedEntryString(Timestamp archivedTime, String archiverName, Timestamp createdTime, String creatorName, String entry)
-    {
-        return DARK_GRAY + "Archived: [" + SuspiciousPlayers.displayDateFormat.format(archivedTime) + "] UTC by " + archiverName + ":\n" +
-                GRAY + "Reported: " + SuspiciousPlayers.displayDateFormat.format(createdTime) + " UTC by " + creatorName + ":\n" +
-                GRAY + entry + '\n';
-    }
-    private static String getUsername(String uuid)
-    {
-        try
-        {
-            return Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
-        }
-        catch (Exception e)
-        {
-            return uuid;
-        }
-    }
+    //private ArrayList<String> formatActiveEntries(ResultSet results) throws SQLException
+    //{
+    //    ArrayList<String> entries = new ArrayList<>();
+    //    for(int i = 1; results.next(); i++)
+    //    {
+    //        String username = getUsername(results.getString("creator_uuid"));
+//
+    //        entries.add(buildEntryString(results.getTimestamp("created_time"), username, results.getString("entry"), i));
+    //    }
+    //    return entries;
+    //}
+//
+    //private ArrayList<String> formatArchivedEntries(ResultSet results) throws SQLException
+    //{
+    //    ArrayList<String> entries = new ArrayList<>();
+    //    for(int i = 1; results.next(); i++)
+    //    {
+    //        String creatorUsername = getUsername(results.getString("creator_uuid"));
+    //        String archiverUsername = getUsername(results.getString("archiver_uuid"));
+//
+    //        entries.add(buildArchivedEntryString(results.getTimestamp("archived_time"), archiverUsername, results.getTimestamp("created_time"), creatorUsername, results.getString("entry"), i));
+    //    }
+    //    return entries;
+    //}
 }

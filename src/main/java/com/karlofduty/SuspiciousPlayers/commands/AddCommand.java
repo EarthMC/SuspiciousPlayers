@@ -1,6 +1,7 @@
 package com.karlofduty.SuspiciousPlayers.commands;
 
 import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
+import com.karlofduty.SuspiciousPlayers.models.ActiveEntry;
 import org.bukkit.Bukkit;
 import static org.bukkit.ChatColor.*;
 import org.bukkit.OfflinePlayer;
@@ -61,7 +62,7 @@ public class AddCommand implements CommandExecutor
 
                     try(Connection c = plugin.getConnection())
                     {
-                        PreparedStatement statement = c.prepareStatement("INSERT INTO active_entries(created_time, creator_uuid, suspicious_uuid, entry) VALUES (?,?,?,?)");
+                        PreparedStatement statement = c.prepareStatement(ActiveEntry.INSERT);
                         statement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
                         statement.setString(2, creatorUUID);
                         statement.setString(3, suspiciousUUID);

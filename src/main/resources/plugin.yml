@@ -25,6 +25,9 @@ permissions:
   susp.list:
     description: Player can add others to the suspicious players list.
     default: op
+  susp.delete:
+    description: Player can add delete entries from the suspicious players list.
+    default: op
 commands:
   suspadd:
     description: Adds an entry that a player is suspicious
@@ -36,5 +39,8 @@ commands:
     description: Archives an entry from a user's susplist.
     usage: /susparchive <username> <listnumber>
   suspunarchive:
-    description: Unarchives an entry from a user's susplist.
+    description: Unarchives an entry from a user's archived susplist.
     usage: /suspunarchive <username> <archivedlistnumber>
+  suspdelete:
+    description: Deletes an entry from a user's archived susplist.
+    usage: /suspdelete <username> <archivedlistnumber>

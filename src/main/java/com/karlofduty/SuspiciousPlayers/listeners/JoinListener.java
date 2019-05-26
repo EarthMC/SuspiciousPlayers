@@ -3,8 +3,7 @@ package com.karlofduty.SuspiciousPlayers.listeners;
 import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
 import static org.bukkit.ChatColor.*;
 
-import com.karlofduty.SuspiciousPlayers.commands.ListCommand;
-import org.bukkit.Bukkit;
+import com.karlofduty.SuspiciousPlayers.models.ActiveEntry;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -13,7 +12,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.UUID;
 
 public class JoinListener implements Listener
 {
@@ -35,10 +33,9 @@ public class JoinListener implements Listener
                     }
                     if(count == 1)
                     {
-                        // TODO: Fix name stuff
                         results.first();
                         SuspiciousPlayers.instance.notify(RED + event.getPlayer().getName() + " has been marked as suspicious:\n" +
-                                ListCommand.buildEntryString(results.getTimestamp("created_time"), Bukkit.getOfflinePlayer(UUID.fromString(results.getString("creator_uuid"))).getName(), results.getString("entry")));
+                                new ActiveEntry(results).getFormattedString());
                     }
                     else if(count > 1)
                     {
