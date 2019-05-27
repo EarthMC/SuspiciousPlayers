@@ -1,8 +1,13 @@
 package com.karlofduty.SuspiciousPlayers.models;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+
 import java.sql.*;
 
-import static org.bukkit.ChatColor.*;
+import static net.md_5.bungee.api.ChatColor.*;
 
 public class ArchivedEntry extends PlayerEntry
 {
@@ -16,8 +21,9 @@ public class ArchivedEntry extends PlayerEntry
 
 
 	public static final String INSERT = "INSERT INTO archived_entries(archived_time, archiver_uuid, created_time, creator_uuid, suspicious_uuid, entry) VALUES (?,?,?,?,?,?)";
-	public static final String SELECT = "SELECT * FROM archived_entries WHERE suspicious_uuid = ? ORDER BY created_time LIMIT ?;";
-	public static final String DELETE = "DELETE FROM archived_entries WHERE id = ?";
+	public static final String SELECT_PLAYER = "SELECT * FROM archived_entries WHERE suspicious_uuid = ? ORDER BY created_time LIMIT ?;";
+	private static final String SELECT = "SELECT * FROM archived_entries WHERE id = ?;";
+	private static final String DELETE = "DELETE FROM archived_entries WHERE id = ?";
 
 	public ArchivedEntry(ResultSet table) throws SQLException
 	{
@@ -28,6 +34,31 @@ public class ArchivedEntry extends PlayerEntry
 		this.creatorUUID = table.getString("creator_uuid");
 		this.suspiciousUUID = table.getString("suspicious_uuid");
 		this.entry = table.getString("entry");
+	}
+
+	/**
+	 * Selects a single row from the archived entries table in the database and returns an ArchivedEntry object representing it
+	 * @param c The Connection object used to contact the database
+	 * @param id The id of the row to select
+	 * @return An ArchivedEntry object representing the row, null if not found or sql error
+	 */
+	public static ArchivedEntry select(Connection c, int id)
+	{
+		try
+		{
+			PreparedStatement selectStatement = c.prepareStatement(ArchivedEntry.SELECT);
+			selectStatement.setInt(1, id);
+			ResultSet resultSet = selectStatement.executeQuery();
+			if(resultSet.next())
+			{
+				return new ArchivedEntry(resultSet);
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public String delete(Connection c, String deleterUUID)
@@ -97,13 +128,26 @@ public class ArchivedEntry extends PlayerEntry
 	}
 
 	@Override
-	public String getFormattedString()
+	public TextComponent getInteractiveMessage()
 	{
-		return String.format("%s Reported by: %s\n%s Archived by: %s\n%s\n \n",
-				DARK_GRAY + "[" + GRAY + displayDateFormat.format(createdTime) + DARK_GRAY + "]" + GRAY,
-				DARK_GRAY + getUsername(creatorUUID),
-				DARK_GRAY + "[" + GRAY + displayDateFormat.format(archivedTime) + DARK_GRAY + "]" + GRAY,
-				DARK_GRAY + getUsername(archiverUUID),
-				GRAY + entry);
+		return new TextComponent(
+				new ComponentBuilder("[")
+						.color(DARK_GRAY)
+					.append("+")
+						.color(GREEN)
+						.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/suspunarchive " + id))
+						.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(GREEN + "Unarchive this entry.")))
+					.append("")
+						.reset()
+					.append(TextComponent.fromLegacyText(DARK_GRAY + "] [" + GRAY + displayDateFormat.format(createdTime) + DARK_GRAY + "] Reported by: " + GRAY + getUsername(creatorUUID) + "\n" + DARK_GRAY + "["))
+					.append("x")
+						.color(RED)
+						.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/suspdelete " + id))
+						.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(RED + "Delete this entry.")))
+					.append("")
+						.reset()
+					.append(TextComponent.fromLegacyText(DARK_GRAY + "] [" + GRAY + displayDateFormat.format(archivedTime) + DARK_GRAY + "] Archived by: " + GRAY + getUsername(archiverUUID) + "\n" + entry + "\n"))
+					.create()
+		);
 	}
 }

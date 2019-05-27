@@ -1,10 +1,7 @@
 package com.karlofduty.SuspiciousPlayers.commands;
 
 import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
-import com.karlofduty.SuspiciousPlayers.models.ActiveEntry;
 import com.karlofduty.SuspiciousPlayers.models.ArchivedEntry;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,9 +22,9 @@ public class UnarchiveCommand implements CommandExecutor
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
-		if(args.length < 2 || !SuspiciousPlayers.isInt(args[1]))
+		if(args.length < 1 || !SuspiciousPlayers.isInt(args[0]))
 		{
-			sender.sendMessage(RED + "Invalid arguments.");
+			sender.sendMessage(RED + "Invalid arguments. You are not supposed to use this command, it is automatically called from /susplist.");
 			return false;
 		}
 
@@ -37,15 +34,7 @@ public class UnarchiveCommand implements CommandExecutor
 			return true;
 		}
 
-		OfflinePlayer op = Bukkit.getOfflinePlayer(args[0]);
-		if (!op.hasPlayedBefore())
-		{
-			sender.sendMessage(RED + "Can not find a player by that name, make sure you are using their current username.");
-			return true;
-		}
-
-		String suspiciousUUID = op.getUniqueId().toString();
-		int listIndex = Integer.parseInt(args[1]);
+		int id = Integer.parseInt(args[0]);
 		BukkitRunnable r = new BukkitRunnable()
 		{
 			@Override
@@ -53,21 +42,15 @@ public class UnarchiveCommand implements CommandExecutor
 			{
 				try(Connection c = plugin.getConnection())
 				{
-					PreparedStatement selectStatement = c.prepareStatement(ArchivedEntry.SELECT);
-					selectStatement.setString(1,suspiciousUUID);
-					selectStatement.setInt(2, 10000);
-					ResultSet results = selectStatement.executeQuery();
+					ArchivedEntry entry = ArchivedEntry.select(c, id);
 
-					for (int i = 1; results.next(); i++)
+					if(entry == null)
 					{
-						if(i == listIndex)
-						{
-							ArchivedEntry entry = new ArchivedEntry(results);
-							sender.sendMessage(entry.unarchive(c));
-							return;
-						}
+						sender.sendMessage("Invalid ID, does that entry still exist?");
+						return;
 					}
-					sender.sendMessage(RED + "Can not find that entry, please use the susplist command to verify the list number.");
+
+					sender.sendMessage(entry.unarchive(c));
 				}
 				catch (SQLException e)
 				{

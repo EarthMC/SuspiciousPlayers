@@ -35,18 +35,24 @@ commands:
   suspadd:
     description: Adds an entry that a player is suspicious
     usage: /suspadd <username> <description>
+    permission: susp.add
   susplist:
     description: Lists all entries on a specific player.
     usage: /susplist <username>
+    permission: susp.list
   susparchive:
-    description: Archives an entry from a user's susplist.
-    usage: /susparchive <username> <listnumber>
+    description: Archives an entry from a user's susplist. This command should not be used directly, it is called from the list menu.
+    usage: /susparchive <id>
+    permission: susp.archive
   suspunarchive:
-    description: Unarchives an entry from a user's archived susplist.
-    usage: /suspunarchive <username> <archivedlistnumber>
+    description: Unarchives an entry from a user's archived susplist. This command should not be used directly, it is called from the list menu.
+    usage: /suspunarchive <id>
+    permission: susp.unarchive
   suspdelete:
-    description: Deletes an entry from a user's archived susplist.
-    usage: /suspdelete <username> <archivedlistnumber>
+    description: Deletes an entry from a user's archived susplist. This command should not be used directly, it is called from the list menu.
+    usage: /suspdelete <id>
+    permission: susp.delete
   suspreload:
     description: Reloads the plugin.
     usage: /suspreload
+    permission: susp.reload

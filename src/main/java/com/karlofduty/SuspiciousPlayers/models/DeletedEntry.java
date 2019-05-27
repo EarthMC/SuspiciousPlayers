@@ -1,4 +1,6 @@
 package com.karlofduty.SuspiciousPlayers.models;
+import net.md_5.bungee.api.chat.TextComponent;
+
 import java.sql.*;
 
 public class DeletedEntry extends PlayerEntry
@@ -15,8 +17,9 @@ public class DeletedEntry extends PlayerEntry
 
 
 	public static final String INSERT = "INSERT INTO deleted_entries(deleted_time, deleter_uuid, archived_time, archiver_uuid, created_time, creator_uuid, suspicious_uuid, entry) VALUES (?,?,?,?,?,?,?,?)";
-	public static final String SELECT = "SELECT * FROM deleted_entries WHERE suspicious_uuid = ? ORDER BY created_time LIMIT ?;";
-	public static final String DELETE = "DELETE FROM deleted_entries WHERE id = ?";
+	public static final String SELECT = "SELECT * FROM deleted_entries WHERE id = ?;";
+	public static final String SELECT_PLAYER = "SELECT * FROM deleted_entries WHERE suspicious_uuid = ? ORDER BY created_time LIMIT ?;";
+	private static final String DELETE = "DELETE FROM deleted_entries WHERE id = ?";
 
 	public DeletedEntry(ResultSet table) throws SQLException
 	{
@@ -32,8 +35,8 @@ public class DeletedEntry extends PlayerEntry
 	}
 
 	@Override
-	public String getFormattedString()
+	public TextComponent getInteractiveMessage()
 	{
-		return "";
+		return null;
 	}
 }

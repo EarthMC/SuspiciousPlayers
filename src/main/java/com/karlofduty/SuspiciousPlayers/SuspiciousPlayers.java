@@ -59,17 +59,6 @@ public class SuspiciousPlayers extends JavaPlugin
         }
     }
 
-    public void notify(String message)
-    {
-        for (Player player : Bukkit.getOnlinePlayers())
-        {
-            if(player.hasPermission("susp.notify"))
-            {
-                player.sendMessage(message);
-            }
-        }
-    }
-
     public Connection getConnection() throws SQLException
     {
         return datasource.getConnection();

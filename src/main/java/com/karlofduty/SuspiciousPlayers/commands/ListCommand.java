@@ -4,6 +4,7 @@ import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
 import com.karlofduty.SuspiciousPlayers.models.ActiveEntry;
 import com.karlofduty.SuspiciousPlayers.models.ArchivedEntry;
 import com.karlofduty.SuspiciousPlayers.models.PlayerEntry;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -58,7 +59,7 @@ public class ListCommand implements CommandExecutor
                     ArrayList<PlayerEntry> entries = new ArrayList<>();
 
                     // Reads all active entries about the player
-                    PreparedStatement statement = c.prepareStatement(ActiveEntry.SELECT);
+                    PreparedStatement statement = c.prepareStatement(ActiveEntry.SELECT_PLAYER);
                     statement.setString(1, suspiciousUUID);
                     statement.setInt(2, maxEntries);
                     ResultSet activeResults = statement.executeQuery();
@@ -72,7 +73,7 @@ public class ListCommand implements CommandExecutor
                     if(entries.size() < maxEntries)
                     {
 
-                        statement = c.prepareStatement(ArchivedEntry.SELECT);
+                        statement = c.prepareStatement(ArchivedEntry.SELECT_PLAYER);
                         statement.setString(1, suspiciousUUID);
                         statement.setInt(2, maxEntries - entries.size());
                         ResultSet archiveResults = statement.executeQuery();
@@ -90,18 +91,12 @@ public class ListCommand implements CommandExecutor
                         return;
                     }
 
-                    // Builds the message and sends it
-                    StringBuilder sb = new StringBuilder();
+                    TextComponent message = new TextComponent(TextComponent.fromLegacyText(GOLD + "----- Displaying (Max: " + YELLOW + maxEntries + GOLD + ") entries for " + YELLOW + op.getName() + GOLD + " -----\n"));
                     for (PlayerEntry entry : entries)
                     {
-                        sb.append(entry.getFormattedString());
+                        message.addExtra(entry.getInteractiveMessage());
                     }
-                    String message = sb.toString();
-                    if(message.endsWith(" \n"))
-                    {
-                        message = message.substring(0,message.length() - 2);
-                    }
-                    sender.sendMessage(GOLD + "----- Displaying (Max: " + YELLOW + maxEntries + GOLD + ") entries for " + YELLOW + op.getName() + GOLD + " -----\n" + message);
+                    sender.spigot().sendMessage(message);
 
                 }
                 catch (SQLException e)
