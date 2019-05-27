@@ -28,6 +28,9 @@ permissions:
   susp.delete:
     description: Player can add delete entries from the suspicious players list.
     default: op
+  susp.reload:
+    description: Player can reload the plugin.
+    default: op
 commands:
   suspadd:
     description: Adds an entry that a player is suspicious
@@ -44,3 +47,6 @@ commands:
   suspdelete:
     description: Deletes an entry from a user's archived susplist.
     usage: /suspdelete <username> <archivedlistnumber>
+  suspreload:
+    description: Reloads the plugin.
+    usage: /suspreload

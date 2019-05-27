@@ -37,8 +37,15 @@ public class SuspiciousPlayers extends JavaPlugin
         Objects.requireNonNull(this.getCommand("susparchive")).setExecutor(new ArchiveCommand(this));
         Objects.requireNonNull(this.getCommand("suspunarchive")).setExecutor(new UnarchiveCommand(this));
         Objects.requireNonNull(this.getCommand("suspdelete")).setExecutor(new DeleteCommand(this));
+        Objects.requireNonNull(this.getCommand("suspreload")).setExecutor(new ReloadCommand(this));
         getServer().getPluginManager().registerEvents(new JoinListener(), this);
         log("Suspicious Players Loaded.");
+    }
+
+    @Override
+    public void onDisable()
+    {
+        datasource.close();
     }
 
     public void notify(BaseComponent[] message)
@@ -66,6 +73,43 @@ public class SuspiciousPlayers extends JavaPlugin
     public Connection getConnection() throws SQLException
     {
         return datasource.getConnection();
+    }
+
+    public String reload()
+    {
+        boolean error = false;
+        try
+        {
+            datasource.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            error = true;
+        }
+
+        try
+        {
+            config = this.getConfig();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            error = true;
+        }
+
+
+        try
+        {
+            connect();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            error = true;
+        }
+
+        return error ? "Plugin reloaded with errors." : "Plugin reloaded successfully";
     }
 
     private void connect()
