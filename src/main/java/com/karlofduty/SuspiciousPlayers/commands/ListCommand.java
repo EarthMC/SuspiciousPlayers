@@ -114,47 +114,4 @@ public class ListCommand implements CommandExecutor
         r.runTaskAsynchronously(plugin);
         return true;
     }
-
-    //private String buildMessage(ArrayList<String> active, ArrayList<String> archived, int max)
-    //{
-    //    StringBuilder message = new StringBuilder();
-//
-    //    int i = 1;
-    //    for(;i <= max && i <= active.size(); i++)
-    //    {
-    //        message.append(active.get(active.size()));
-    //    }
-//
-    //    for(; i <= max && i <= archived.size(); i++)
-    //    {
-    //        message.append(archived.get(i - 1));
-    //    }
-//
-    //    return message.toString();
-    //}
-
-    //private ArrayList<String> formatActiveEntries(ResultSet results) throws SQLException
-    //{
-    //    ArrayList<String> entries = new ArrayList<>();
-    //    for(int i = 1; results.next(); i++)
-    //    {
-    //        String username = getUsername(results.getString("creator_uuid"));
-//
-    //        entries.add(buildEntryString(results.getTimestamp("created_time"), username, results.getString("entry"), i));
-    //    }
-    //    return entries;
-    //}
-//
-    //private ArrayList<String> formatArchivedEntries(ResultSet results) throws SQLException
-    //{
-    //    ArrayList<String> entries = new ArrayList<>();
-    //    for(int i = 1; results.next(); i++)
-    //    {
-    //        String creatorUsername = getUsername(results.getString("creator_uuid"));
-    //        String archiverUsername = getUsername(results.getString("archiver_uuid"));
-//
-    //        entries.add(buildArchivedEntryString(results.getTimestamp("archived_time"), archiverUsername, results.getTimestamp("created_time"), creatorUsername, results.getString("entry"), i));
-    //    }
-    //    return entries;
-    //}
 }
