@@ -3,8 +3,8 @@ package com.karlofduty.SuspiciousPlayers;
 import com.karlofduty.SuspiciousPlayers.commands.*;
 import com.karlofduty.SuspiciousPlayers.listeners.JoinListener;
 import com.zaxxer.hikari.HikariDataSource;
+import static  net.md_5.bungee.api.ChatColor.*;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -98,7 +98,7 @@ public class SuspiciousPlayers extends JavaPlugin
             error = true;
         }
 
-        return error ? "Plugin reloaded with errors." : "Plugin reloaded successfully";
+        return error ? RED + "Plugin reloaded with errors." : GREEN + "Plugin reloaded successfully";
     }
 
     private void connect()
