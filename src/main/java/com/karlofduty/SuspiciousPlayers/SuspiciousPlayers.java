@@ -5,6 +5,7 @@ import com.karlofduty.SuspiciousPlayers.listeners.JoinListener;
 import com.zaxxer.hikari.HikariDataSource;
 import static  net.md_5.bungee.api.ChatColor.*;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -18,7 +19,7 @@ import java.util.Objects;
 public class SuspiciousPlayers extends JavaPlugin
 {
     public static SuspiciousPlayers instance;
-    public FileConfiguration config;
+    private FileConfiguration config;
 
     private HikariDataSource datasource;
 
@@ -28,6 +29,8 @@ public class SuspiciousPlayers extends JavaPlugin
         instance = this;
         this.saveDefaultConfig();
         config = this.getConfig();
+
+        new Metrics(this);
 
         connect();
         createTables();
@@ -39,7 +42,7 @@ public class SuspiciousPlayers extends JavaPlugin
         Objects.requireNonNull(this.getCommand("suspdelete")).setExecutor(new DeleteCommand(this));
         Objects.requireNonNull(this.getCommand("suspreload")).setExecutor(new ReloadCommand(this));
         getServer().getPluginManager().registerEvents(new JoinListener(), this);
-        log("Suspicious Players Loaded.");
+        getLogger().info("Suspicious Players Loaded.");
     }
 
     @Override
@@ -168,10 +171,5 @@ public class SuspiciousPlayers extends JavaPlugin
             return false;
         }
         return true;
-    }
-
-    public static void log(String message)
-    {
-        instance.getServer().getLogger().info(message);
     }
 }
