@@ -48,7 +48,7 @@ public class ArchiveCommand implements CommandExecutor
 
                     if(entry == null)
                     {
-                        sender.sendMessage("Invalid ID, does that entry still exist?");
+                        sender.sendMessage(RED + "Invalid ID, does that entry still exist?");
                         return;
                     }
 
