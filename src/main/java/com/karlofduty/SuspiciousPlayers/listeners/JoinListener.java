@@ -5,6 +5,7 @@ import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
 import com.karlofduty.SuspiciousPlayers.models.ActiveEntry;
 import static net.md_5.bungee.api.ChatColor.*;
 
+import com.karlofduty.SuspiciousPlayers.models.PlayerEntry;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -44,7 +45,7 @@ public class JoinListener implements Listener
                     if(count == 1)
                     {
                         results.first();
-                        SuspiciousPlayers.instance.notify(new ComponentBuilder(event.getPlayer().getName() + " has been marked as suspicious:\n").color(RED).append(new ActiveEntry(results).getInteractiveMessage()).create());
+                        SuspiciousPlayers.instance.notify(new ComponentBuilder(PlayerEntry.getUsernameComponent(event.getPlayer().getUniqueId().toString(), RED)).append(" has been marked as suspicious:\n").color(RED).append(new ActiveEntry(results).getInteractiveMessage()).create());
                     }
                     else if(count > 1)
                     {

@@ -16,7 +16,11 @@
         </repository>
         <repository>
             <id>CodeMC</id>
-            <url>https://repo.codemc.org/repository/maven-public</url>
+            <url>https://repo.codemc.org/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
     <dependencies>
@@ -43,6 +47,11 @@
             <artifactId>mariadb-java-client</artifactId>
             <version>2.4.1</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.SparklingComet</groupId>
+            <artifactId>java-mojang-api</artifactId>
+            <version>-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <build>

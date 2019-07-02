@@ -3,8 +3,14 @@ package com.karlofduty.SuspiciousPlayers.models;
 import static net.md_5.bungee.api.ChatColor.*;
 
 import net.md_5.bungee.api.chat.*;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.sql.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 public class ActiveEntry extends PlayerEntry
 {
@@ -51,6 +57,43 @@ public class ActiveEntry extends PlayerEntry
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * Selects all online players entries from the database
+	 * @param c The Connection object used to contact the database
+	 * @return A HashMap where the keys are players uuids and the values are a list of that player's entries
+	 */
+	public static LinkedHashMap<String, LinkedList<ActiveEntry>> selectOnline(Connection c)
+	{
+		LinkedHashMap<String, LinkedList<ActiveEntry>> onlineEntries = new LinkedHashMap<>();
+		String query = "SELECT * FROM active_entries WHERE suspicious_uuid IN (";
+		final Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
+		try
+		{
+			for (Player player : onlinePlayers)
+			{
+				query = query + "'" + player.getUniqueId().toString() + "'" + ",";
+			}
+
+			query = query.substring(0, query.length()-1);
+			query = query + ")";
+
+			PreparedStatement selectStatement = c.prepareStatement(query);
+			ResultSet resultSet = selectStatement.executeQuery();
+			while(resultSet.next())
+			{
+				// Each player gets their own list of entries as that is how they will be grouped in chat later on
+				LinkedList<ActiveEntry> playerEntries = onlineEntries.getOrDefault(resultSet.getString("suspicious_uuid"), new LinkedList<>());
+				playerEntries.add(new ActiveEntry(resultSet));
+				onlineEntries.put(resultSet.getString("suspicious_uuid"), playerEntries);
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		return onlineEntries;
 	}
 
 	/**
@@ -103,7 +146,9 @@ public class ActiveEntry extends PlayerEntry
 					.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(GOLD + "Archive entry.")))
 				.append("")
 					.reset()
-				.append(TextComponent.fromLegacyText(GREEN + "] [" + YELLOW + displayDateFormat.format(createdTime) + GREEN + "] Reported by: " + YELLOW + getUsername(creatorUUID) + "\n" + entry + "\n"))
+				.append(TextComponent.fromLegacyText(GREEN + "] [" + YELLOW + displayDateFormat.format(createdTime) + GREEN + "] Reported by: "))
+				.append(getUsernameComponent(creatorUUID, YELLOW))
+				.append(TextComponent.fromLegacyText( "\n" + entry + "\n"))
 				.create()
 		);
 	}
