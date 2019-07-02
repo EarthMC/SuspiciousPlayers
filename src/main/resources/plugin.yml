@@ -56,3 +56,6 @@ commands:
     description: Reloads the plugin.
     usage: /suspreload
     permission: susp.reload
+  susp:
+    description: Alias for susplist if only username is added, alias for suspadd if more arguments are added.
+    usage: /susp <name> (optional reason if adding entry)

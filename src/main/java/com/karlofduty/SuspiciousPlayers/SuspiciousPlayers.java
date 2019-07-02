@@ -41,6 +41,7 @@ public class SuspiciousPlayers extends JavaPlugin
         Objects.requireNonNull(this.getCommand("suspunarchive")).setExecutor(new UnarchiveCommand(this));
         Objects.requireNonNull(this.getCommand("suspdelete")).setExecutor(new DeleteCommand(this));
         Objects.requireNonNull(this.getCommand("suspreload")).setExecutor(new ReloadCommand(this));
+        Objects.requireNonNull(this.getCommand("susp")).setExecutor(new SuspCommand(this));
         getServer().getPluginManager().registerEvents(new JoinListener(), this);
         getLogger().info("Suspicious Players Loaded.");
     }
