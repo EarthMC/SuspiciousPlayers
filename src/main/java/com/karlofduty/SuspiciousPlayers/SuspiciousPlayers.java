@@ -4,6 +4,7 @@ import com.karlofduty.SuspiciousPlayers.commands.*;
 import com.karlofduty.SuspiciousPlayers.listeners.JoinListener;
 import com.zaxxer.hikari.HikariDataSource;
 import static  net.md_5.bungee.api.ChatColor.*;
+
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -41,7 +42,9 @@ public class SuspiciousPlayers extends JavaPlugin
         Objects.requireNonNull(this.getCommand("suspunarchive")).setExecutor(new UnarchiveCommand(this));
         Objects.requireNonNull(this.getCommand("suspdelete")).setExecutor(new DeleteCommand(this));
         Objects.requireNonNull(this.getCommand("suspreload")).setExecutor(new ReloadCommand(this));
+        Objects.requireNonNull(this.getCommand("susponline")).setExecutor(new OnlineCommand(this));
         Objects.requireNonNull(this.getCommand("susp")).setExecutor(new SuspCommand(this));
+
         getServer().getPluginManager().registerEvents(new JoinListener(), this);
         getLogger().info("Suspicious Players Loaded.");
     }
@@ -90,7 +93,6 @@ public class SuspiciousPlayers extends JavaPlugin
             e.printStackTrace();
             error = true;
         }
-
 
         try
         {

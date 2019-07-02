@@ -13,9 +13,6 @@ permissions:
   susp.add:
     description: Player can add others to the suspicious players list.
     default: op
-  susp.remove:
-    description: Player can remove others from the suspicious players list.
-    default: op
   susp.archive:
     description: Player can archive listings in the suspicious players list.
     default: op
@@ -26,10 +23,13 @@ permissions:
     description: Player can add others to the suspicious players list.
     default: op
   susp.delete:
-    description: Player can add delete entries from the suspicious players list.
+    description: Player can delete entries from the suspicious players list.
     default: op
   susp.reload:
     description: Player can reload the plugin.
+    default: op
+  susp.online:
+    description: Player can check all online players at once.
     default: op
 commands:
   suspadd:
@@ -56,6 +56,10 @@ commands:
     description: Reloads the plugin.
     usage: /suspreload
     permission: susp.reload
+  susponline:
+    description: Checks active entries of all online players.
+    usage: /susponline
+    permission: susp.online
   susp:
     description: Alias for susplist if only username is added, alias for suspadd if more arguments are added.
     usage: /susp <name> (optional reason if adding entry)
