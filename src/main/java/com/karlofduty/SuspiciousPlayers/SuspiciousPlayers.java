@@ -33,7 +33,7 @@ public class SuspiciousPlayers extends JavaPlugin
 
         new Metrics(this);
 
-        connect();
+        initializeDatasource();
         createTables();
 
         Objects.requireNonNull(this.getCommand("suspadd")).setExecutor(new AddCommand(this));
@@ -96,7 +96,7 @@ public class SuspiciousPlayers extends JavaPlugin
 
         try
         {
-            connect();
+            initializeDatasource();
         }
         catch (Exception e)
         {
@@ -107,7 +107,10 @@ public class SuspiciousPlayers extends JavaPlugin
         return error ? RED + "Plugin reloaded with errors." : GREEN + "Plugin reloaded successfully";
     }
 
-    private void connect()
+    /**
+     * Sets up the mysql datasource
+     */
+    private void initializeDatasource()
     {
         datasource = new HikariDataSource();
         datasource.setDataSourceClassName("mariadb".equalsIgnoreCase(config.getString("database.type")) ? "org.mariadb.jdbc.MariaDbDataSource" : "com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
@@ -118,6 +121,9 @@ public class SuspiciousPlayers extends JavaPlugin
         datasource.addDataSourceProperty("password", config.getString("database.password"));
     }
 
+    /**
+     * Creates all tables that do not already exist in the database
+     */
     private void createTables()
     {
         try (Connection connection = datasource.getConnection(); Statement statement = connection.createStatement())
@@ -158,11 +164,11 @@ public class SuspiciousPlayers extends JavaPlugin
         }
     }
 
-    public static boolean executeCommand(String command)
-    {
-        return instance.getServer().dispatchCommand(instance.getServer().getConsoleSender(), command);
-    }
-
+    /**
+     * Small utility function to check if the contents of a string is an int
+     * @param s The string
+     * @return True if yes, false if no.
+     */
     public static boolean isInt(String s)
     {
         try
