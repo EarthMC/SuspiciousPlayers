@@ -5,7 +5,6 @@ import com.karlofduty.SuspiciousPlayers.models.ActiveEntry;
 import com.karlofduty.SuspiciousPlayers.models.PlayerEntry;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -60,7 +59,7 @@ public class OnlineCommand implements CommandExecutor
 						try
 						{
 							message.addExtra(new TextComponent(TextComponent.fromLegacyText(GOLD + "----- Displaying entries for ")));
-							message.addExtra(PlayerEntry.getUsernameComponent(playerEntries.getKey(), ChatColor.YELLOW));
+							message.addExtra(PlayerEntry.getNameComponent(UUID.fromString(playerEntries.getKey()), ChatColor.YELLOW));
 							message.addExtra(new TextComponent(TextComponent.fromLegacyText(GOLD + " -----\n")));
 							for (PlayerEntry entry : playerEntries.getValue())
 							{

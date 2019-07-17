@@ -8,9 +8,9 @@ import org.bukkit.entity.Player;
 
 import java.sql.*;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.UUID;
 
 public class ActiveEntry extends PlayerEntry
 {
@@ -147,7 +147,7 @@ public class ActiveEntry extends PlayerEntry
 				.append("")
 					.reset()
 				.append(TextComponent.fromLegacyText(GREEN + "] [" + YELLOW + displayDateFormat.format(createdTime) + GREEN + "] Reported by: "))
-				.append(getUsernameComponent(creatorUUID, YELLOW))
+				.append(getNameComponent(UUID.fromString(creatorUUID), YELLOW))
 				.append(TextComponent.fromLegacyText( "\n" + entry + "\n"))
 				.create()
 		);

@@ -45,7 +45,7 @@ public class JoinListener implements Listener
                     if(count == 1)
                     {
                         results.first();
-                        SuspiciousPlayers.instance.notify(new ComponentBuilder(PlayerEntry.getUsernameComponent(event.getPlayer().getUniqueId().toString(), RED)).append(" has been marked as suspicious:\n").color(RED).append(new ActiveEntry(results).getInteractiveMessage()).create());
+                        SuspiciousPlayers.instance.notify(new ComponentBuilder(PlayerEntry.getNameComponent(event.getPlayer().getUniqueId(), RED)).append(" has been marked as suspicious:\n").color(RED).append(new ActiveEntry(results).getInteractiveMessage()).create());
                     }
                     else if(count > 1)
                     {

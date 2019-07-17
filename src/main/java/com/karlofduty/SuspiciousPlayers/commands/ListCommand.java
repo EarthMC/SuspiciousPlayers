@@ -4,7 +4,6 @@ import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
 import com.karlofduty.SuspiciousPlayers.models.ActiveEntry;
 import com.karlofduty.SuspiciousPlayers.models.ArchivedEntry;
 import com.karlofduty.SuspiciousPlayers.models.PlayerEntry;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -93,7 +92,7 @@ public class ListCommand implements CommandExecutor
                     }
 
                     TextComponent message = new TextComponent(TextComponent.fromLegacyText(GOLD + "----- Displaying (Max: " + YELLOW + maxEntries + GOLD + ") entries for "));
-                    message.addExtra(PlayerEntry.getUsernameComponent(suspiciousUUID, net.md_5.bungee.api.ChatColor.YELLOW));
+                    message.addExtra(PlayerEntry.getNameComponent(UUID.fromString(suspiciousUUID), net.md_5.bungee.api.ChatColor.YELLOW));
                     message.addExtra(new TextComponent(TextComponent.fromLegacyText(GOLD + " -----\n")));
                     for (PlayerEntry entry : entries)
                     {

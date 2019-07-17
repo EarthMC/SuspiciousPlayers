@@ -6,6 +6,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import java.sql.*;
+import java.util.UUID;
 
 import static net.md_5.bungee.api.ChatColor.*;
 
@@ -140,7 +141,7 @@ public class ArchivedEntry extends PlayerEntry
 					.append("")
 						.reset()
 					.append(TextComponent.fromLegacyText(DARK_GRAY + "] [" + GRAY + displayDateFormat.format(createdTime) + DARK_GRAY + "] Reported by: "))
-					.append(getUsernameComponent(creatorUUID, GRAY))
+					.append(getNameComponent(UUID.fromString(creatorUUID), GRAY))
 					.append(TextComponent.fromLegacyText("\n" + DARK_GRAY + "["))
 					.append("x")
 						.color(RED)
@@ -149,7 +150,7 @@ public class ArchivedEntry extends PlayerEntry
 					.append("")
 						.reset()
 					.append(TextComponent.fromLegacyText(DARK_GRAY + "] [" + GRAY + displayDateFormat.format(archivedTime) + DARK_GRAY + "] Archived by: "))
-					.append(getUsernameComponent(archiverUUID, GRAY))
+					.append(getNameComponent(UUID.fromString(archiverUUID), GRAY))
 					.append(TextComponent.fromLegacyText("\n" + entry + "\n"))
 					.create()
 		);
