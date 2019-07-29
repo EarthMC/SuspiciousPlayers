@@ -67,10 +67,10 @@ public class ActiveEntry extends PlayerEntry
 	public static LinkedHashMap<String, LinkedList<ActiveEntry>> selectOnline(Connection c)
 	{
 		LinkedHashMap<String, LinkedList<ActiveEntry>> onlineEntries = new LinkedHashMap<>();
-		String query = "SELECT * FROM active_entries WHERE suspicious_uuid IN (";
 		final Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
 		try
 		{
+			String query = "SELECT * FROM active_entries WHERE suspicious_uuid IN (";
 			for (Player player : onlinePlayers)
 			{
 				query = query + "'" + player.getUniqueId().toString() + "'" + ",";
