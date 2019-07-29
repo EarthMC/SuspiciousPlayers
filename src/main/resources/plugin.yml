@@ -31,7 +31,13 @@ permissions:
   susp.online:
     description: Player can check all online players at once.
     default: op
+  susp.tp:
+    description: Player is allowed to use the plugin's teleportation commands
+    default: op
 commands:
+  susp:
+    description: Alias for susplist if only username is added, alias for suspadd if more arguments are added.
+    usage: /susp <name> (optional reason if adding entry)
   suspadd:
     description: Adds an entry that a player is suspicious
     usage: /suspadd <username> <description>
@@ -60,6 +66,16 @@ commands:
     description: Checks active entries of all online players.
     usage: /susponline
     permission: susp.online
-  susp:
-    description: Alias for susplist if only username is added, alias for suspadd if more arguments are added.
-    usage: /susp <name> (optional reason if adding entry)
+  tpnext:
+    description: Teleports to the next player on the player list.
+    usage: /tpnext
+  tpprev:
+    description: Teleports to the previous player on the player list.
+    usage: /tpprev
+  suspnext:
+    description: Teleports to the next player on the susplist.
+    usage: /suspnext
+  suspprev:
+    description: Teleports to the previous player on the susplist.
+    usage: /suspprev
+

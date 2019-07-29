@@ -36,14 +36,20 @@ public class SuspiciousPlayers extends JavaPlugin
         initializeDatasource();
         createTables();
 
+        Objects.requireNonNull(this.getCommand("susp")).setExecutor(new SuspCommand(this));
         Objects.requireNonNull(this.getCommand("suspadd")).setExecutor(new AddCommand(this));
         Objects.requireNonNull(this.getCommand("susplist")).setExecutor(new ListCommand(this));
+
         Objects.requireNonNull(this.getCommand("susparchive")).setExecutor(new ArchiveCommand(this));
         Objects.requireNonNull(this.getCommand("suspunarchive")).setExecutor(new UnarchiveCommand(this));
         Objects.requireNonNull(this.getCommand("suspdelete")).setExecutor(new DeleteCommand(this));
         Objects.requireNonNull(this.getCommand("suspreload")).setExecutor(new ReloadCommand(this));
         Objects.requireNonNull(this.getCommand("susponline")).setExecutor(new OnlineCommand(this));
-        Objects.requireNonNull(this.getCommand("susp")).setExecutor(new SuspCommand(this));
+
+        Objects.requireNonNull(this.getCommand("tpnext")).setExecutor(new TPNextCommand(this));
+        Objects.requireNonNull(this.getCommand("tpprev")).setExecutor(new TPPrevCommand(this));
+        Objects.requireNonNull(this.getCommand("suspnext")).setExecutor(new SuspNextCommand(this));
+        Objects.requireNonNull(this.getCommand("suspprev")).setExecutor(new SuspPrevCommand(this));
 
         getServer().getPluginManager().registerEvents(new JoinListener(), this);
         getLogger().info("Suspicious Players Loaded.");
