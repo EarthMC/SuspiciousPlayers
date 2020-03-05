@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -59,7 +60,7 @@ public abstract class PlayerEntry
 	}
 
 	/**
-	 * Gets a TextComponent containing the name and a popup with name history of a player.
+	 * Gets a TextComponent containing the name and a popup with name history of a player. MAKE SURE THIS IS ALWAYS CALLED ASYNCHRONOUSLY!
 	 * @param uuid ID of the player.
 	 * @param color Color of the player name in the text component.
 	 * @return The finished TextComponent.
@@ -104,11 +105,18 @@ public abstract class PlayerEntry
 				popup.append(RESET);
 			}
 
+			popup.append('\n');
+			popup.append('\n');
+			popup.append(YELLOW);
+			popup.append("Click to open susplist for this player.");
+			popup.append(RESET);
+
 			// Builds the final TextComponent and returns it
 			return new TextComponent(
 					new ComponentBuilder(usernameHistory.firstEntry().getValue())
 							.color(color)
 							.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(DARK_GRAY + "Known aliases:" + popup.toString())))
+							.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/susplist " + usernameHistory.firstEntry().getValue()))
 							.create());
 		}
 		catch (Exception e)

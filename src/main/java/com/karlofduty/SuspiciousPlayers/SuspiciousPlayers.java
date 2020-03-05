@@ -6,7 +6,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import static  net.md_5.bungee.api.ChatColor.*;
 
 import net.md_5.bungee.api.chat.BaseComponent;
-import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -30,8 +29,6 @@ public class SuspiciousPlayers extends JavaPlugin
         instance = this;
         this.saveDefaultConfig();
         config = this.getConfig();
-
-        new Metrics(this);
 
         initializeDatasource();
         createTables();

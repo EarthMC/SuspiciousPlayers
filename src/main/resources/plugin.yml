@@ -1,9 +1,9 @@
 name: SuspiciousPlayers
 version: ${project.version}
 description: ${project.description}
-api-version: 1.13
+api-version: '1.15'
 author: creatorfromhell, KarlofDuty
-website: https://earthmc.net
+website: http://karlofduty.com
 load: STARTUP
 main: com.karlofduty.SuspiciousPlayers.SuspiciousPlayers
 permissions:

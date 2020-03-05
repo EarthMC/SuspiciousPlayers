@@ -34,20 +34,21 @@ public class SuspPrevCommand implements CommandExecutor
 		}
 
 		Player player = (Player) sender;
+		Player tpTarget = TPHandler.prevSusp(player);
+
+		if(tpTarget == null)
+		{
+			sender.sendMessage(RED + "No suspicious player online to teleport to.");
+			return true;
+		}
+
+		player.teleport(tpTarget);
 
 		BukkitRunnable r = new BukkitRunnable()
 		{
 			@Override
 			public void run()
 			{
-				Player tpTarget = TPHandler.prevSusp(player);
-				if(tpTarget == null)
-				{
-					sender.sendMessage(RED + "No suspicious player online to teleport to.");
-					return;
-				}
-
-				player.teleport(tpTarget);
 				sender.spigot().sendMessage(TPHandler.getTPStatus(tpTarget, true));
 			}
 		};

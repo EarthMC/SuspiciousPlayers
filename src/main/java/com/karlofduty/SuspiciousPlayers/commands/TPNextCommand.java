@@ -34,20 +34,20 @@ public class TPNextCommand implements CommandExecutor
 		}
 
 		Player player = (Player) sender;
+		Player tpTarget = TPHandler.next(player);
+
+		if(tpTarget == null)
+		{
+			sender.sendMessage(RED + "No one online to teleport to.");
+			return true;
+		}
+		player.teleport(tpTarget);
 
 		BukkitRunnable r = new BukkitRunnable()
 		{
 			@Override
 			public void run()
 			{
-				Player tpTarget = TPHandler.next(player);
-				if(tpTarget == null)
-				{
-					sender.sendMessage(RED + "No one online to teleport to.");
-					return;
-				}
-
-				player.teleport(tpTarget);
 				sender.spigot().sendMessage(TPHandler.getTPStatus(tpTarget, false));
 			}
 		};
