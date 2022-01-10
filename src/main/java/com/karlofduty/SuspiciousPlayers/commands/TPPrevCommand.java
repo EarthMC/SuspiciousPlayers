@@ -2,6 +2,7 @@ package com.karlofduty.SuspiciousPlayers.commands;
 
 import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
 import com.karlofduty.SuspiciousPlayers.TPHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -42,16 +43,9 @@ public class TPPrevCommand implements CommandExecutor
 			return true;
 		}
 
-		player.teleport(tpTarget);
-		BukkitRunnable r = new BukkitRunnable()
-		{
-			@Override
-			public void run()
-			{
-				sender.spigot().sendMessage(TPHandler.getTPStatus(tpTarget, false));
-			}
-		};
-		r.runTaskAsynchronously(plugin);
+		player.teleportAsync(tpTarget.getLocation());
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> sender.spigot().sendMessage(TPHandler.getTPStatus(tpTarget, false)));
+
 		return true;
 	}
 }
