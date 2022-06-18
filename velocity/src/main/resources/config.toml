@@ -1,0 +1,11 @@
+[database]
+# The address the database server runs on
+hostname = "localhost"
+# The port the database server listens to
+port = "3306"
+# The name of the database for the plugin to use
+name = "SuspiciousPlayers"
+# User to log in as
+user = "SuspUser"
+# Password used to log in
+password = "hello1234"
