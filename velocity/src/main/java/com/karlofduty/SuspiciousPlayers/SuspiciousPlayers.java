@@ -7,6 +7,7 @@ import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
@@ -69,6 +70,18 @@ public class SuspiciousPlayers {
         proxy.getEventManager().register(this, new JoinListener(this));
         logger.info("Suspicious Players Loaded.");
     }
+
+    @Subscribe
+    public void onProxyShutdown(ProxyShutdownEvent event) {
+        if (this.dataSource != null) {
+            try {
+                this.dataSource.close();
+            } finally {
+                this.dataSource = null;
+            }
+        }
+    }
+
 
     public void notify(RegisteredServer server, Component message) {
         for (Player player : server.getPlayersConnected()) {
