@@ -28,7 +28,7 @@ public class TPHandler {
 	 * @return Index of the player that they last teleported to
 	 */
 	private static int getIndexOrInitialize(Player player, String serverName) {
-		Map<UUID, Integer> serverIndices = indices.putIfAbsent(serverName, new ConcurrentHashMap<>());
+		Map<UUID, Integer> serverIndices = indices.computeIfAbsent(serverName, k -> new ConcurrentHashMap<>());
 
 		if (!serverIndices.containsKey(player.getUniqueId()))
 			serverIndices.put(player.getUniqueId(), 0);
@@ -52,7 +52,7 @@ public class TPHandler {
 		if (currentPos >= server.getPlayersConnected().size())
 			currentPos = 0;
 
-		indices.putIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), new ConcurrentHashMap<>()).put(player.getUniqueId(), currentPos);
+		indices.computeIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), k -> new ConcurrentHashMap<>()).put(player.getUniqueId(), currentPos);
 
 		Player tpTarget = (Player) server.getPlayersConnected().toArray()[currentPos];
 
@@ -76,7 +76,7 @@ public class TPHandler {
 		if (currentPos < 0)
 			currentPos = server.getPlayersConnected().size() - 1;
 
-		indices.putIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), new ConcurrentHashMap<>()).put(player.getUniqueId(), currentPos);
+		indices.computeIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), k -> new ConcurrentHashMap<>()).put(player.getUniqueId(), currentPos);
 
 		Player tpTarget = (Player) server.getPlayersConnected().toArray()[currentPos];
 
@@ -111,7 +111,7 @@ public class TPHandler {
 			if (currentPos >= entries.size())
 				currentPos = 0;
 
-			indices.putIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), new ConcurrentHashMap<>()).put(player.getUniqueId(), currentPos);
+			indices.computeIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), k -> new ConcurrentHashMap<>()).put(player.getUniqueId(), currentPos);
 
 			Player tpTarget = SuspiciousPlayers.plugin().proxy().getPlayer(UUID.fromString((String)entries.keySet().toArray()[currentPos])).orElse(null);
 
@@ -152,7 +152,7 @@ public class TPHandler {
 			if (currentPos < 0)
 				currentPos = entries.size() - 1;
 
-			indices.putIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), new ConcurrentHashMap<>()).put(player.getUniqueId(), currentPos);
+			indices.computeIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), k -> new ConcurrentHashMap<>()).put(player.getUniqueId(), currentPos);
 
 			Player tpTarget = SuspiciousPlayers.plugin().proxy().getPlayer(UUID.fromString((String) entries.keySet().toArray()[currentPos])).orElse(null);
 

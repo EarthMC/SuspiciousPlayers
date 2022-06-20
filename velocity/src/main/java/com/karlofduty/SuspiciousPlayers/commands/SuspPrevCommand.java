@@ -26,15 +26,18 @@ public class SuspPrevCommand implements SimpleCommand {
 			return;
 		}
 
-		Player tpTarget = TPHandler.prevSusp(player);
+		plugin.proxy().getScheduler().buildTask(plugin, () -> {
 
-		if (tpTarget == null) {
-			invocation.source().sendMessage(Component.text("No suspicious player online to teleport to.", NamedTextColor.RED));
-			return;
-		}
+			Player tpTarget = TPHandler.prevSusp(player);
 
-		plugin.proxy().getCommandManager().executeAsync(plugin.proxy().getConsoleCommandSource(), "/cp ttp " + player.getUsername() + " " + tpTarget.getUsername());
-		player.sendMessage(TPHandler.getTPStatus(tpTarget, true));
+			if (tpTarget == null) {
+				invocation.source().sendMessage(Component.text("No suspicious player online to teleport to.", NamedTextColor.RED));
+				return;
+			}
+
+			plugin.proxy().getCommandManager().executeAsync(plugin.proxy().getConsoleCommandSource(), "cpv teleportplayer " + player.getUsername() + " " + tpTarget.getUsername());
+			player.sendMessage(TPHandler.getTPStatus(tpTarget, true));
+		}).schedule();
 	}
 
 	@Override
