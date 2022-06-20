@@ -108,7 +108,7 @@ public class ActiveEntry extends PlayerEntry {
 			insertStatement.executeUpdate();
 			try {
 				PreparedStatement statement = c.prepareStatement(DELETE);
-				statement.setInt(1,id);
+				statement.setInt(1, id);
 				statement.execute();
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -140,6 +140,6 @@ public class ActiveEntry extends PlayerEntry {
 				.append(Component.text(displayDateFormat.format(createdTime), NamedTextColor.YELLOW))
 				.append(Component.text("] Reported by: ", NamedTextColor.GREEN))
 				.append(reporterComponent)
-				.append(Component.text("\n" + entry + "\n", NamedTextColor.GOLD));
+				.append(Component.text("\n" + entry + "\n", NamedTextColor.GREEN));
 	}
 }
