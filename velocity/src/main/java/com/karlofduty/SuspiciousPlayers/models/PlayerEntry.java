@@ -96,6 +96,15 @@ public abstract class PlayerEntry {
 
 						statement1.execute();
 					}
+				} else if (usernameHistory != null) {
+					// No previous history, insert into player history table
+					try (PreparedStatement statement1 = connection.prepareStatement("insert into player_history (uuid, name, name_history) values (?, ?, ?)")) {
+						statement1.setString(1, uuid.toString());
+						statement1.setString(2, usernameHistory.firstEntry().getValue());
+						statement1.setString(3, history);
+
+						statement1.execute();
+					}
 				}
 			}
 
