@@ -12,14 +12,14 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TPHandler {
-	public static final Map<String, Map<UUID, Integer>> indicies = new HashMap<>();
+	public static final Map<String, Map<UUID, Integer>> indices = new ConcurrentHashMap<>();
 
 	/**
 	 * Gets the current player list index of the player which the command caller has last teleported to,
@@ -28,12 +28,12 @@ public class TPHandler {
 	 * @return Index of the player that they last teleported to
 	 */
 	private static int getIndexOrInitialize(Player player, String serverName) {
-		Map<UUID, Integer> serverIndicies = indicies.putIfAbsent(serverName, new HashMap<>());
+		Map<UUID, Integer> serverIndices = indices.putIfAbsent(serverName, new ConcurrentHashMap<>());
 
-		if (!serverIndicies.containsKey(player.getUniqueId()))
-			serverIndicies.put(player.getUniqueId(), 0);
+		if (!serverIndices.containsKey(player.getUniqueId()))
+			serverIndices.put(player.getUniqueId(), 0);
 
-		return serverIndicies.get(player.getUniqueId());
+		return serverIndices.get(player.getUniqueId());
 	}
 	
 	/**
@@ -52,7 +52,7 @@ public class TPHandler {
 		if (currentPos >= server.getPlayersConnected().size())
 			currentPos = 0;
 
-		indicies.putIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), new HashMap<>()).put(player.getUniqueId(), currentPos);
+		indices.putIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), new ConcurrentHashMap<>()).put(player.getUniqueId(), currentPos);
 
 		Player tpTarget = (Player) server.getPlayersConnected().toArray()[currentPos];
 
@@ -76,7 +76,7 @@ public class TPHandler {
 		if (currentPos < 0)
 			currentPos = server.getPlayersConnected().size() - 1;
 
-		indicies.putIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), new HashMap<>()).put(player.getUniqueId(), currentPos);
+		indices.putIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), new ConcurrentHashMap<>()).put(player.getUniqueId(), currentPos);
 
 		Player tpTarget = (Player) server.getPlayersConnected().toArray()[currentPos];
 
@@ -111,7 +111,7 @@ public class TPHandler {
 			if (currentPos >= entries.size())
 				currentPos = 0;
 
-			indicies.putIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), new HashMap<>()).put(player.getUniqueId(), currentPos);
+			indices.putIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), new ConcurrentHashMap<>()).put(player.getUniqueId(), currentPos);
 
 			Player tpTarget = SuspiciousPlayers.plugin().proxy().getPlayer(UUID.fromString((String)entries.keySet().toArray()[currentPos])).orElse(null);
 
@@ -133,6 +133,9 @@ public class TPHandler {
 	public static Player prevSusp(Player player) {
 		RegisteredServer server = player.getCurrentServer().map(ServerConnection::getServer).orElse(null);
 
+		if (server == null || server.getPlayersConnected().size() <= 1)
+			return null;
+
 		int currentPos = getIndexOrInitialize(player, server.getServerInfo().getName().toLowerCase(Locale.ROOT)) - 1;
 
 		try (Connection c = SuspiciousPlayers.plugin().getConnection()) {
@@ -149,7 +152,7 @@ public class TPHandler {
 			if (currentPos < 0)
 				currentPos = entries.size() - 1;
 
-			indicies.putIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), new HashMap<>()).put(player.getUniqueId(), currentPos);
+			indices.putIfAbsent(server.getServerInfo().getName().toLowerCase(Locale.ROOT), new ConcurrentHashMap<>()).put(player.getUniqueId(), currentPos);
 
 			Player tpTarget = SuspiciousPlayers.plugin().proxy().getPlayer(UUID.fromString((String) entries.keySet().toArray()[currentPos])).orElse(null);
 

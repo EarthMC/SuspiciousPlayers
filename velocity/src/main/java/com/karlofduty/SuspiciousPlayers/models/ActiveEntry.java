@@ -48,8 +48,7 @@ public class ActiveEntry extends PlayerEntry {
 			PreparedStatement selectStatement = c.prepareStatement(ActiveEntry.SELECT);
 			selectStatement.setInt(1, id);
 			ResultSet resultSet = selectStatement.executeQuery();
-			if(resultSet.next())
-			{
+			if (resultSet.next()) {
 				return new ActiveEntry(resultSet);
 			}
 		} catch (SQLException e) {

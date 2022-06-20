@@ -2,10 +2,12 @@ package com.karlofduty.SuspiciousPlayers.listeners;
 
 import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
 
+import com.karlofduty.SuspiciousPlayers.TPHandler;
 import com.karlofduty.SuspiciousPlayers.models.ActiveEntry;
 
 import com.karlofduty.SuspiciousPlayers.models.PlayerEntry;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 
@@ -18,6 +20,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.UUID;
 
 public class JoinListener {
     private final SuspiciousPlayers plugin;
@@ -81,8 +85,14 @@ public class JoinListener {
                             .append(Component.text(" to see why.", NamedTextColor.RED)));
                 }
             } catch (SQLException e) {
-                plugin.logger().error("An SQLException occurred when contacting the database", e);
+                plugin.logger().error("An exception occurred when contacting the database", e);
             }
         }).schedule();
+    }
+
+    @Subscribe
+    public void onPlayerDisconnect(DisconnectEvent event) {
+        for (Map<UUID, Integer> serverIndices : TPHandler.indices.values())
+            serverIndices.remove(event.getPlayer().getUniqueId());
     }
 }
