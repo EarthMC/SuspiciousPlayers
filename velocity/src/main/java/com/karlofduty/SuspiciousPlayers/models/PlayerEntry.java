@@ -75,8 +75,7 @@ public abstract class PlayerEntry {
 	public static Component getNameComponent(UUID uuid, NamedTextColor color) {
 
 		// Attempt to get the username history
-		try (Connection connection = SuspiciousPlayers.plugin().getConnection();
-			 PreparedStatement statement = connection.prepareStatement("select * from player_history where uuid = ?")) {
+		try (Connection connection = SuspiciousPlayers.plugin().getConnection(); PreparedStatement statement = connection.prepareStatement("select * from player_history where uuid = ?")) {
 			statement.setString(1, uuid.toString());
 			ResultSet resultSet = statement.executeQuery();
 

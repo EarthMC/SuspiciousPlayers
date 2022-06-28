@@ -33,26 +33,27 @@ public class JoinListener {
     @Subscribe
     public void onPlayerLogin(PostLoginEvent event) {
         plugin.proxy().getScheduler().buildTask(plugin, () -> {
-            try (Connection connection = plugin.getConnection()) {
-                PreparedStatement statement = connection.prepareStatement("select * from player_history where uuid = ? limit 1");
+            try (Connection connection = plugin.getConnection(); PreparedStatement statement = connection.prepareStatement("select * from player_history where uuid = ? limit 1")) {
                 statement.setString(1, event.getPlayer().getUniqueId().toString());
                 ResultSet resultSet = statement.executeQuery();
 
                 if (!resultSet.next()) {
-                    PreparedStatement statement2 = connection.prepareStatement("insert into player_history(uuid, name) values (?, ?)");
-                    statement2.setString(1, event.getPlayer().getUniqueId().toString());
-                    statement2.setString(2, event.getPlayer().getUsername());
+                    try (PreparedStatement statement2 = connection.prepareStatement("insert into player_history(uuid, name) values (?, ?)")) {
+                        statement2.setString(1, event.getPlayer().getUniqueId().toString());
+                        statement2.setString(2, event.getPlayer().getUsername());
 
-                    statement2.execute();
+                        statement2.execute();
+                    }
                 } else if (!event.getPlayer().getUsername().equals(resultSet.getString("name"))) {
                     // The player has changed their name, update their name in the db
-                    PreparedStatement statement2 = connection.prepareStatement("replace into player_history (uuid, name, name_history) values (?, ?, ?)");
-                    statement2.setString(1, event.getPlayer().getUniqueId().toString());
-                    statement2.setString(2, event.getPlayer().getUsername());
-                    // Clear username history
-                    statement2.setString(3, null);
+                    try (PreparedStatement statement2 = connection.prepareStatement("replace into player_history (uuid, name, name_history) values (?, ?, ?)")) {
+                        statement2.setString(1, event.getPlayer().getUniqueId().toString());
+                        statement2.setString(2, event.getPlayer().getUsername());
+                        // Clear username history
+                        statement2.setString(3, null);
 
-                    statement2.execute();
+                        statement2.execute();
+                    }
                 }
             } catch (SQLException e) {
                 plugin.logger().warn("An exception occurred when updating player history", e);
@@ -63,8 +64,7 @@ public class JoinListener {
     @Subscribe
     public void onServerConnected(ServerConnectedEvent event) {
         plugin.proxy().getScheduler().buildTask(plugin, () -> {
-            try (Connection c = plugin.getConnection()) {
-                PreparedStatement statement = c.prepareStatement(ActiveEntry.SELECT_PLAYER, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            try (Connection c = plugin.getConnection(); PreparedStatement statement = c.prepareStatement(ActiveEntry.SELECT_PLAYER, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 statement.setString(1, event.getPlayer().getUniqueId().toString());
                 statement.setInt(2, 1000);
                 ResultSet results = statement.executeQuery();

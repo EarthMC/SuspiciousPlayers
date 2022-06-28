@@ -45,12 +45,13 @@ public class ArchivedEntry extends PlayerEntry {
 	 * @return An ArchivedEntry object representing the row, null if not found or sql error
 	 */
 	public static ArchivedEntry select(Connection c, int id) {
-		try {
-			PreparedStatement selectStatement = c.prepareStatement(ArchivedEntry.SELECT);
+		try (PreparedStatement selectStatement = c.prepareStatement(ArchivedEntry.SELECT)) {
 			selectStatement.setInt(1, id);
 			ResultSet resultSet = selectStatement.executeQuery();
+
 			if (resultSet.next())
 				return new ArchivedEntry(resultSet);
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -59,8 +60,7 @@ public class ArchivedEntry extends PlayerEntry {
 	}
 
 	public Component delete(Connection c, String deleterUUID) {
-		try {
-			PreparedStatement insertStatement = c.prepareStatement(DeletedEntry.INSERT);
+		try (PreparedStatement insertStatement = c.prepareStatement(DeletedEntry.INSERT)) {
 			insertStatement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 			insertStatement.setString(2, deleterUUID);
 			insertStatement.setTimestamp(3, archivedTime);
@@ -71,8 +71,7 @@ public class ArchivedEntry extends PlayerEntry {
 			insertStatement.setString(8, entry);
 			insertStatement.executeUpdate();
 
-			try {
-				PreparedStatement statement = c.prepareStatement(DELETE);
+			try (PreparedStatement statement = c.prepareStatement(DELETE)) {
 				statement.setInt(1, id);
 				statement.execute();
 			} catch (SQLException e) {
@@ -88,8 +87,7 @@ public class ArchivedEntry extends PlayerEntry {
 	}
 
 	public Component unarchive(Connection c) {
-		try {
-			PreparedStatement insertStatement = c.prepareStatement(ActiveEntry.INSERT);
+		try (PreparedStatement insertStatement = c.prepareStatement(ActiveEntry.INSERT)) {
 			insertStatement.setTimestamp(1, createdTime);
 			insertStatement.setString(2, creatorUUID);
 			insertStatement.setString(3, suspiciousUUID);
@@ -100,8 +98,7 @@ public class ArchivedEntry extends PlayerEntry {
 			return Component.text("Error occurred while inserting entry into active table: " + e.getMessage(), NamedTextColor.RED);
 		}
 
-		try {
-			PreparedStatement statement = c.prepareStatement(DELETE);
+		try (PreparedStatement statement = c.prepareStatement(DELETE)) {
 			statement.setInt(1, id);
 			statement.execute();
 		} catch (SQLException e) {

@@ -44,13 +44,12 @@ public class ActiveEntry extends PlayerEntry {
 	 * @return An ActiveEntry object representing the row, null if not found or sql error
 	 */
 	public static ActiveEntry select(Connection c, int id) {
-		try {
-			PreparedStatement selectStatement = c.prepareStatement(ActiveEntry.SELECT);
+		try (PreparedStatement selectStatement = c.prepareStatement(ActiveEntry.SELECT)) {
 			selectStatement.setInt(1, id);
 			ResultSet resultSet = selectStatement.executeQuery();
-			if (resultSet.next()) {
+
+			if (resultSet.next())
 				return new ActiveEntry(resultSet);
-			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -74,13 +73,14 @@ public class ActiveEntry extends PlayerEntry {
 			query = query.substring(0, query.length() - 1);
 			query = query + ")";
 
-			PreparedStatement selectStatement = c.prepareStatement(query);
-			ResultSet resultSet = selectStatement.executeQuery();
-			while (resultSet.next()) {
-				// Each player gets their own list of entries as that is how they will be grouped in chat later on
-				LinkedList<ActiveEntry> playerEntries = onlineEntries.getOrDefault(resultSet.getString("suspicious_uuid"), new LinkedList<>());
-				playerEntries.add(new ActiveEntry(resultSet));
-				onlineEntries.put(resultSet.getString("suspicious_uuid"), playerEntries);
+			try (PreparedStatement selectStatement = c.prepareStatement(query)) {
+				ResultSet resultSet = selectStatement.executeQuery();
+				while (resultSet.next()) {
+					// Each player gets their own list of entries as that is how they will be grouped in chat later on
+					LinkedList<ActiveEntry> playerEntries = onlineEntries.getOrDefault(resultSet.getString("suspicious_uuid"), new LinkedList<>());
+					playerEntries.add(new ActiveEntry(resultSet));
+					onlineEntries.put(resultSet.getString("suspicious_uuid"), playerEntries);
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -96,8 +96,7 @@ public class ActiveEntry extends PlayerEntry {
 	 * @return The response message to send to the player
 	 */
 	public Component archive(Connection c, String archiverUUID) {
-		try {
-			PreparedStatement insertStatement = c.prepareStatement(ArchivedEntry.INSERT);
+		try (PreparedStatement insertStatement = c.prepareStatement(ArchivedEntry.INSERT)) {
 			insertStatement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 			insertStatement.setString(2, archiverUUID);
 			insertStatement.setTimestamp(3, createdTime);
@@ -105,8 +104,8 @@ public class ActiveEntry extends PlayerEntry {
 			insertStatement.setString(5, suspiciousUUID);
 			insertStatement.setString(6, entry);
 			insertStatement.executeUpdate();
-			try {
-				PreparedStatement statement = c.prepareStatement(DELETE);
+
+			try (PreparedStatement statement = c.prepareStatement(DELETE)) {
 				statement.setInt(1, id);
 				statement.execute();
 			} catch (SQLException e) {

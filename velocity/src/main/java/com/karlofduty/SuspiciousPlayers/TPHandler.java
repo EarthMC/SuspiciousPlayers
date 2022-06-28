@@ -117,9 +117,7 @@ public class TPHandler {
 
 			// If the target is themselves, skip it
 			return tpTarget == player ? nextSusp(player) : tpTarget;
-		}
-		catch (SQLException e)
-		{
+		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
 		}
