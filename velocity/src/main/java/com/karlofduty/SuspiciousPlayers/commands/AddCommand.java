@@ -1,5 +1,6 @@
 package com.karlofduty.SuspiciousPlayers.commands;
 
+import com.google.common.collect.ImmutableList;
 import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
 import com.karlofduty.SuspiciousPlayers.models.ActiveEntry;
 import com.velocitypowered.api.command.SimpleCommand;
@@ -18,16 +19,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-public class AddCommand implements SimpleCommand {
+public class AddCommand extends BaseCommand implements SimpleCommand {
     private final SuspiciousPlayers plugin;
 
     public AddCommand(SuspiciousPlayers plugin) {
         this.plugin = plugin;
-    }
-
-    @Override
-    public List<String> suggest(Invocation invocation) {
-        return SimpleCommand.super.suggest(invocation);
     }
 
     @Override
@@ -90,5 +86,15 @@ public class AddCommand implements SimpleCommand {
     @Override
     public boolean hasPermission(Invocation invocation) {
         return invocation.source().hasPermission("susp.add");
+    }
+
+    @Override
+    public List<String> suggest(Invocation invocation) {
+        switch (invocation.arguments().length) {
+            case 0 -> plugin.proxy().getAllPlayers().stream().map(Player::getUsername).toList();
+            case 1 -> filterByStart(plugin.proxy().getAllPlayers().stream().map(Player::getUsername).toList(), invocation.arguments()[0]);
+        }
+
+        return ImmutableList.of();
     }
 }
