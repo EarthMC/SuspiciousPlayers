@@ -3,6 +3,7 @@ package com.karlofduty.SuspiciousPlayers.listeners;
 import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
 
 import com.karlofduty.SuspiciousPlayers.TPHandler;
+import com.karlofduty.SuspiciousPlayers.history.UsernameHistory;
 import com.karlofduty.SuspiciousPlayers.models.ActiveEntry;
 
 import com.karlofduty.SuspiciousPlayers.models.PlayerEntry;
@@ -37,20 +38,33 @@ public class JoinListener {
                 statement.setString(1, event.getPlayer().getUniqueId().toString());
                 ResultSet resultSet = statement.executeQuery();
 
+                // Player does not have any previous history saved
+                final String username = event.getPlayer().getUsername();
                 if (!resultSet.next()) {
                     try (PreparedStatement statement2 = connection.prepareStatement("insert into player_history(uuid, name) values (?, ?)")) {
                         statement2.setString(1, event.getPlayer().getUniqueId().toString());
-                        statement2.setString(2, event.getPlayer().getUsername());
+                        statement2.setString(2, username);
 
                         statement2.execute();
                     }
-                } else if (!event.getPlayer().getUsername().equals(resultSet.getString("name"))) {
+                } else if (!username.equals(resultSet.getString("name"))) {
                     // The player has changed their name, update their name in the db
                     try (PreparedStatement statement2 = connection.prepareStatement("replace into player_history (uuid, name, name_history) values (?, ?, ?)")) {
                         statement2.setString(1, event.getPlayer().getUniqueId().toString());
-                        statement2.setString(2, event.getPlayer().getUsername());
-                        // Clear username history
-                        statement2.setString(3, null);
+                        statement2.setString(2, username);
+
+                        // Update username history
+                        String historyString = resultSet.getString("name_history");
+                        Map<String, String> history;
+                        if (historyString != null) {
+                            history = UsernameHistory.deserialize(historyString);
+                            history.put(PlayerEntry.displayDateFormat.format(System.currentTimeMillis()), username);
+                        } else {
+                            // First time we've detected a name change from this player.
+                            history = UsernameHistory.newHistory(resultSet.getString("name"), username);
+                        }
+
+                        statement2.setString(3, UsernameHistory.serialize(history));
 
                         statement2.execute();
                     }

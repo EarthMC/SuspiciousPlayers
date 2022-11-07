@@ -1,38 +1,23 @@
 package com.karlofduty.SuspiciousPlayers.models;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import com.karlofduty.SuspiciousPlayers.SuspiciousPlayers;
+import com.karlofduty.SuspiciousPlayers.history.UsernameHistory;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.stream.Collectors;
 
 public abstract class PlayerEntry {
-	private static final Type type = new TypeToken<HashMap<String, String>>(){}.getType();
-	private static final Gson gson = new GsonBuilder().registerTypeAdapter(type, new NameMapDeserializer()).create();
 
 	/**
 	 * Date formatting for plugin messages.
@@ -81,37 +66,20 @@ public abstract class PlayerEntry {
 
 			ConcurrentSkipListMap<String, String> usernameHistory;
 			boolean hasHistory = resultSet.next();
-			if (hasHistory && resultSet.getString("name_history") != null) {
-				// The player exists in the player_history table and has name history
-				usernameHistory = gson.fromJson(resultSet.getString("name_history"), type);
-			} else {
-				String history = getUsernameHistory(uuid);
-
-				usernameHistory = gson.fromJson(history, type);
-				if (hasHistory) {
-					try (PreparedStatement statement1 = connection.prepareStatement("update player_history set name_history = ? where uuid = ?")) {
-						statement1.setString(1, history);
-						statement1.setString(2, uuid.toString());
-
-						statement1.execute();
-					}
-				} else if (usernameHistory != null) {
-					// No previous history, insert into player history table
-					try (PreparedStatement statement1 = connection.prepareStatement("insert into player_history (uuid, name, name_history) values (?, ?, ?)")) {
-						statement1.setString(1, uuid.toString());
-						statement1.setString(2, usernameHistory.firstEntry().getValue());
-						statement1.setString(3, history);
-
-						statement1.execute();
-					}
+			if (hasHistory) {
+				String history = resultSet.getString("name_history");
+				if (history != null) {
+					// The player exists in the player_history table and has name history
+					usernameHistory = UsernameHistory.deserialize(resultSet.getString("name_history"));
+				} else {
+					// We know the player's username, but they don't have any name history.
+					usernameHistory = new ConcurrentSkipListMap<>();
+					usernameHistory.put("-", resultSet.getString("name"));
 				}
-			}
-
-			if (usernameHistory == null || usernameHistory.isEmpty()) {
-				// Return TextComponent with error popup
-				return Component.text(getUsername(connection, uuid), color)
-						.hoverEvent(HoverEvent.showText(Component.text("Known aliases:\n", NamedTextColor.DARK_GRAY)
-								.append(Component.text("ERROR: COULD NOT CONNECT TO MOJANG API", NamedTextColor.RED))));
+			} else {
+				// We don't have any history for this player at all, just use their uuid instead.
+				usernameHistory = new ConcurrentSkipListMap<>();
+				usernameHistory.put("-", uuid.toString());
 			}
 
 			// Builds the hover popup section of the message
@@ -129,60 +97,11 @@ public abstract class PlayerEntry {
 					.clickEvent(ClickEvent.runCommand("/susplist " + usernameHistory.firstEntry().getValue()));
 		} catch (Exception e) {
 			// Print error and return TextComponent with error popup
-			e.printStackTrace();
+			SuspiciousPlayers.plugin().logger().warn("while formatting name component for " + uuid, e);
 
 			return Component.text(uuid.toString(), color)
 					.hoverEvent(HoverEvent.showText(Component.text("Known aliases:\n", NamedTextColor.DARK_GRAY)
-							.append(Component.text("ERROR: COULD NOT CONNECT TO MOJANG API", NamedTextColor.RED))));
-		}
-	}
-
-	/**
-	 * Contacts the Mojang API and requests the name history of a player.
-	 * @param uuid ID of the player to check.
-	 * @return A string of timestamps and player names.
-	 */
-	public static String getUsernameHistory(UUID uuid) {
-		String compactUUID = uuid.toString().replace("-", "");
-		try {
-			// Contacts the Mojang API and requests the player's name history
-			URL url = new URL("https://api.mojang.com/user/profiles/" + compactUUID + "/names");
-			try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream()))) {
-				return reader.lines().collect(Collectors.joining());
-			}
-		} catch (Exception e) {
-			SuspiciousPlayers.plugin().logger().error("Error occurred while contacting MojangAPI", e);
-			return null;
-		}
-	}
-}
-
-/**
- * Deserializer for the name history package from the Mojang API.
- * The input map is actually an array of unnamed objects with a name and (usually) timestamp, this gets turned into a Map<Long, String> below.
- */
-class NameMapDeserializer implements JsonDeserializer<ConcurrentSkipListMap<String, String>> {
-	@Override
-	public ConcurrentSkipListMap<String, String> deserialize(JsonElement json, Type type, JsonDeserializationContext context) {
-		try {
-			ConcurrentSkipListMap<String, String> map = new ConcurrentSkipListMap<>(Collections.reverseOrder());
-			for (JsonElement jItem : json.getAsJsonArray()) {
-				JsonObject jObject = jItem.getAsJsonObject();
-
-				// Gets the player name, this is always included in each object
-				String name = jObject.get("name").getAsString();
-
-				// Timestamps are not included on the player's first name so it is set to "-" in that case
-				String timestamp = "-";
-				if (jObject.get("changedToAt") != null)
-					timestamp = PlayerEntry.displayDateFormat.format(jObject.get("changedToAt").getAsLong());
-
-				map.put(timestamp, name);
-			}
-			return map;
-		} catch (Exception e) {
-			SuspiciousPlayers.plugin().logger().error("Error occurred while parsing json package", e);
-			return null;
+							.append(Component.text("ERROR: " + e.getMessage(), NamedTextColor.RED))));
 		}
 	}
 }
