@@ -113,11 +113,10 @@ public class ListCommand extends BaseCommand implements SimpleCommand {
 
     @Override
     public List<String> suggest(Invocation invocation) {
-        switch (invocation.arguments().length) {
+        return switch (invocation.arguments().length) {
             case 0 -> plugin.proxy().getAllPlayers().stream().map(Player::getUsername).toList();
             case 1 -> filterByStart(plugin.proxy().getAllPlayers().stream().map(Player::getUsername).toList(), invocation.arguments()[0]);
-        }
-
-        return ImmutableList.of();
+            default -> ImmutableList.of();
+        };
     }
 }

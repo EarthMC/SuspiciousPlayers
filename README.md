@@ -4,6 +4,6 @@
 
 - Shows notifications when suspicious players join.
 
-- Lets staff teleoprt around between both suspicious players and all players in general.
+- Lets staff teleport around between both suspicious players and all players in general.
 
 - Easy to use with most of the interactions as buttons in chat.
