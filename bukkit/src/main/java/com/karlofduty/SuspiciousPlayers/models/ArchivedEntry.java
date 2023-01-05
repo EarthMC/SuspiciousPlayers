@@ -151,7 +151,7 @@ public class ArchivedEntry extends PlayerEntry
 						.reset()
 					.append(TextComponent.fromLegacyText(DARK_GRAY + "] [" + GRAY + displayDateFormat.format(archivedTime) + DARK_GRAY + "] Archived by: "))
 					.append(getNameComponent(UUID.fromString(archiverUUID), GRAY))
-					.append(TextComponent.fromLegacyText("\n" + entry + "\n"))
+					.append(TextComponent.fromLegacyText("\n" + entry))
 					.create()
 		);
 	}
