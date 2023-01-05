@@ -148,7 +148,7 @@ public class ActiveEntry extends PlayerEntry
 					.reset()
 				.append(TextComponent.fromLegacyText(GREEN + "] [" + YELLOW + displayDateFormat.format(createdTime) + GREEN + "] Reported by: "))
 				.append(getNameComponent(UUID.fromString(creatorUUID), YELLOW))
-				.append(TextComponent.fromLegacyText( "\n" + entry + "\n"))
+				.append(TextComponent.fromLegacyText( "\n" + entry))
 				.create()
 		);
 	}
