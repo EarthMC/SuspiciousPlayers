@@ -28,6 +28,7 @@ public class ActiveEntry extends PlayerEntry {
 	private static final String SELECT = "SELECT * FROM active_entries WHERE id = ?;";
 	public static final String SELECT_PLAYER = "SELECT * FROM active_entries WHERE suspicious_uuid = ? ORDER BY created_time LIMIT ?;";
 	private static final String DELETE = "DELETE FROM active_entries WHERE id = ?";
+	private static final String EDIT = "UPDATE active_entries SET entry = ?, created_time = ? WHERE id = ? ";
 
 	public ActiveEntry(ResultSet table) throws SQLException {
 		this.id = table.getInt("id");
@@ -91,7 +92,7 @@ public class ActiveEntry extends PlayerEntry {
 
 	/**
 	 * Archives a single active entry in the database
-	 * @param c The connection obejct used to contact the database
+	 * @param c The connection object used to contact the database
 	 * @param archiverUUID The uuid of the player archiving the entry
 	 * @return The response message to send to the player
 	 */
@@ -120,6 +121,21 @@ public class ActiveEntry extends PlayerEntry {
 		return Component.text("Entry archived.", NamedTextColor.RED);
 	}
 
+	public Component edit(final Connection connection, String message) {
+		try (PreparedStatement statement = connection.prepareStatement(ActiveEntry.EDIT)) {
+			statement.setString(1, message);
+			statement.setTimestamp(2, this.createdTime); // Prevent mysql from automatically updating the created_time to the current time
+			statement.setInt(3, this.id);
+
+			statement.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return Component.text("Error occurred while editing message: " + e.getMessage(), NamedTextColor.RED);
+		}
+
+		return Component.text("Edited message.", NamedTextColor.GREEN);
+	}
+
 	@Override
 	public Component getInteractiveMessage() {
 		Component reporterComponent = Component.text(creatorUUID, NamedTextColor.YELLOW);
@@ -134,6 +150,10 @@ public class ActiveEntry extends PlayerEntry {
 				.append(Component.text("-", NamedTextColor.GOLD)
 						.clickEvent(ClickEvent.runCommand("/susparchive " + id))
 						.hoverEvent(HoverEvent.showText(Component.text("Archive entry.", NamedTextColor.GOLD))))
+				.append(Component.text("] [", NamedTextColor.GREEN))
+				.append(Component.text("✎")
+						.clickEvent(ClickEvent.suggestCommand("/suspedit " + id + " "))
+						.hoverEvent(HoverEvent.showText(Component.text("Edit entry.", NamedTextColor.GOLD))))
 				.append(Component.text("] [", NamedTextColor.GREEN))
 				.append(Component.text(displayDateFormat.format(createdTime), NamedTextColor.YELLOW))
 				.append(Component.text("] Reported by: ", NamedTextColor.GREEN))

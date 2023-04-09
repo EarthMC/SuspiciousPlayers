@@ -66,6 +66,7 @@ public class SuspiciousPlayers {
         commandManager.register("tpprev", new TPPrevCommand(this));
         commandManager.register("suspnext", new SuspNextCommand(this));
         commandManager.register("suspprev", new SuspPrevCommand(this));
+        commandManager.register("suspedit", new EditCommand(this));
 
         proxy.getEventManager().register(this, new JoinListener(this));
         logger.info("Suspicious Players Loaded.");
