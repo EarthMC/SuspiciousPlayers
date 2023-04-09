@@ -138,6 +138,6 @@ public class ActiveEntry extends PlayerEntry {
 				.append(Component.text(displayDateFormat.format(createdTime), NamedTextColor.YELLOW))
 				.append(Component.text("] Reported by: ", NamedTextColor.GREEN))
 				.append(reporterComponent)
-				.append(Component.text("\n" + entry, NamedTextColor.GREEN));
+				.append(Component.text("\n" + entry + "\n", NamedTextColor.GREEN));
 	}
 }

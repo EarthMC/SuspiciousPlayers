@@ -140,6 +140,6 @@ public class ArchivedEntry extends PlayerEntry {
 				.append(Component.text(displayDateFormat.format(archivedTime), NamedTextColor.GRAY))
 				.append(Component.text("] Archived by: ", NamedTextColor.DARK_GRAY))
 				.append(archiverComponent)
-				.append(Component.text("\n" + entry, NamedTextColor.DARK_GRAY));
+				.append(Component.text("\n" + entry + "\n", NamedTextColor.DARK_GRAY));
 	}
 }
