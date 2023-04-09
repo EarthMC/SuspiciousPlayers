@@ -1,5 +1,7 @@
 package com.karlofduty.SuspiciousPlayers;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.inject.Inject;
 import com.karlofduty.SuspiciousPlayers.commands.*;
 import com.karlofduty.SuspiciousPlayers.listeners.JoinListener;
@@ -26,10 +28,15 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Plugin(id = "suspiciousplayers", name = "SuspiciousPlayers", version = "1.3.4", authors = {"KarlOfDuty", "creatorfromhell", "Warriorrr"})
 public class SuspiciousPlayers {
     private static SuspiciousPlayers plugin;
+    public final Cache<UUID, Set<UUID>> seenNotifyCache = CacheBuilder.newBuilder().expireAfterAccess(15, TimeUnit.MINUTES).build();
     private Toml config;
     private HikariDataSource dataSource;
     private static final String CONFIG_FILE_NAME = "config.toml";
@@ -84,9 +91,18 @@ public class SuspiciousPlayers {
     }
 
 
-    public void notify(RegisteredServer server, Component message) {
+    public void notify(RegisteredServer server, UUID suspiciousUUID, Component message) {
         for (Player player : server.getPlayersConnected()) {
-            if (player.hasPermission("susp.notify"))
+            if (!player.hasPermission("susp.notify"))
+                continue;
+
+            Set<UUID> seen = seenNotifyCache.getIfPresent(player.getUniqueId());
+            if (seen == null) {
+                seen = new HashSet<>();
+                seenNotifyCache.put(player.getUniqueId(), seen);
+            }
+
+            if (seen.add(suspiciousUUID))
                 player.sendMessage(message);
         }
     }

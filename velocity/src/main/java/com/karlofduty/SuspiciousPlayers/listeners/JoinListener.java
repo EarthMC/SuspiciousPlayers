@@ -89,9 +89,9 @@ public class JoinListener {
 
                 if (count == 1) {
                     results.first();
-                    plugin.notify(event.getServer(), Component.empty().append(PlayerEntry.getNameComponent(event.getPlayer().getUniqueId(), NamedTextColor.RED)).append(Component.text(" has been marked as suspicious:\n", NamedTextColor.RED)).append(new ActiveEntry(results).getInteractiveMessage()));
+                    plugin.notify(event.getServer(), event.getPlayer().getUniqueId(), Component.empty().append(PlayerEntry.getNameComponent(event.getPlayer().getUniqueId(), NamedTextColor.RED)).append(Component.text(" has been marked as suspicious:\n", NamedTextColor.RED)).append(new ActiveEntry(results).getInteractiveMessage()));
                 } else if (count > 1) {
-                    plugin.notify(event.getServer(), Component.empty()
+                    plugin.notify(event.getServer(), event.getPlayer().getUniqueId(), Component.empty()
                             .append(Component.text(event.getPlayer().getUsername() + " has been marked as suspicious " + count + " times!\nDo ", NamedTextColor.RED))
                             .append(Component.text("/susplist " + event.getPlayer().getUsername(), NamedTextColor.YELLOW)
                                     .clickEvent(ClickEvent.runCommand("/susplist " + event.getPlayer().getUsername()))
@@ -108,5 +108,7 @@ public class JoinListener {
     public void onPlayerDisconnect(DisconnectEvent event) {
         for (Map<UUID, Integer> serverIndices : TPHandler.indices.values())
             serverIndices.remove(event.getPlayer().getUniqueId());
+
+        plugin.seenNotifyCache.invalidate(event.getPlayer().getUniqueId());
     }
 }
