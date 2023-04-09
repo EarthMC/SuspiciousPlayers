@@ -30,7 +30,13 @@ public class DeleteCommand implements SimpleCommand {
         }
 
         final String deleterUUID = invocation.source() instanceof Player player ? player.getUniqueId().toString() : "Console";
-        final int id = Integer.parseInt(invocation.arguments()[0]);
+        final int id;
+        try {
+            id = Integer.parseInt(invocation.arguments()[0]);
+        } catch (NumberFormatException e) {
+            invocation.source().sendMessage(Component.text("Invalid id: " + invocation.arguments()[0]));
+            return;
+        }
 
         plugin.proxy().getScheduler().buildTask(plugin, () -> {
             try (Connection c = plugin.getConnection()) {

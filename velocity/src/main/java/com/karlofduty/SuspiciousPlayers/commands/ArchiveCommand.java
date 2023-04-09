@@ -31,7 +31,13 @@ public class ArchiveCommand implements SimpleCommand {
         }
 
         final String archiverUUID = invocation.source() instanceof Player player ? player.getUniqueId().toString() : "Console";
-        int id = Integer.parseInt(invocation.arguments()[0]);
+        final int id;
+        try {
+            id = Integer.parseInt(invocation.arguments()[0]);
+        } catch (NumberFormatException e) {
+            invocation.source().sendMessage(Component.text("Invalid id: " + invocation.arguments()[0]));
+            return;
+        }
 
         plugin.proxy().getScheduler().buildTask(plugin, () -> {
             try (Connection c = plugin.getConnection()) {
