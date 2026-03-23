@@ -24,6 +24,5 @@ hs_err_pid*
 
 \.idea/
 
-bukkit/target/
-velocity/target/
+target/
 *.iml
