@@ -11,32 +11,26 @@ import org.jetbrains.annotations.NotNull;
 
 public class SuspPrevCommand implements CommandExecutor {
 
-  @Override
-  public boolean onCommand(
-      @NotNull CommandSender sender,
-      @NotNull Command command,
-      @NotNull String label,
-      String @NotNull [] args) {
-    if (!sender.hasPermission("susp.tp")) {
-      sender.sendMessage(
-          Component.text("You are not allowed to use that command.", NamedTextColor.RED));
-      return true;
-    }
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
+        if (!sender.hasPermission("susp.tp")) {
+            sender.sendMessage(Component.text("You are not allowed to use that command.", NamedTextColor.RED));
+            return true;
+        }
 
-    if (!(sender instanceof Player player)) {
-      sender.sendMessage(Component.text("You cannot run this as console!", NamedTextColor.RED));
-      return true;
-    }
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Component.text("You cannot run this as console!", NamedTextColor.RED));
+            return true;
+        }
 
-    Player tpTarget = TPHandler.prevSusp(player);
-    if (tpTarget == null) {
-      sender.sendMessage(
-          Component.text("No suspicious player online to teleport to.", NamedTextColor.RED));
-      return true;
-    }
+        Player tpTarget = TPHandler.prevSusp(player);
+        if (tpTarget == null) {
+            sender.sendMessage(Component.text("No suspicious player online to teleport to.", NamedTextColor.RED));
+            return true;
+        }
 
-    player.teleport(tpTarget);
-    player.sendMessage(TPHandler.getTPStatus(tpTarget, true));
-    return true;
-  }
+        player.teleport(tpTarget);
+        player.sendMessage(TPHandler.getTPStatus(tpTarget, true));
+        return true;
+    }
 }

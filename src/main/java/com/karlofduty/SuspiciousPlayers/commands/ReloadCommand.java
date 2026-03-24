@@ -9,25 +9,20 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 public class ReloadCommand implements CommandExecutor {
-  private final SuspiciousPlayers plugin;
+    private final SuspiciousPlayers plugin;
 
-  public ReloadCommand(SuspiciousPlayers pl) {
-    plugin = pl;
-  }
-
-  @Override
-  public boolean onCommand(
-      @NotNull CommandSender sender,
-      @NotNull Command command,
-      @NotNull String label,
-      String @NotNull [] args) {
-    if (!sender.hasPermission("susp.reload")) {
-      sender.sendMessage(
-          Component.text("You do not have permission to use this command.", NamedTextColor.RED));
-      return true;
+    public ReloadCommand(SuspiciousPlayers pl) {
+        plugin = pl;
     }
 
-    sender.sendMessage(plugin.reload());
-    return true;
-  }
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
+        if (!sender.hasPermission("susp.reload")) {
+            sender.sendMessage(Component.text("You do not have permission to use this command.", NamedTextColor.RED));
+            return true;
+        }
+
+        sender.sendMessage(plugin.reload());
+        return true;
+    }
 }
