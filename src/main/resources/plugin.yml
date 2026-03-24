@@ -6,6 +6,7 @@ author: creatorfromhell, KarlofDuty
 website: http://karlofduty.com
 load: STARTUP
 main: com.karlofduty.SuspiciousPlayers.SuspiciousPlayers
+folia-supported: true
 permissions:
   susp.notify:
     description: Player gets notifications from the plugin.
