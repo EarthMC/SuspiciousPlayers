@@ -114,6 +114,8 @@ public class SuspiciousPlayers extends JavaPlugin {
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS archived_entries(" + "id INT UNSIGNED NOT NULL UNIQUE PRIMARY KEY AUTO_INCREMENT," + "archived_time TIMESTAMP NOT NULL," + "archiver_uuid VARCHAR(36) NOT NULL," + "created_time TIMESTAMP NOT NULL," + "creator_uuid VARCHAR(36) NOT NULL," + "suspicious_uuid VARCHAR(36) NOT NULL," + "entry VARCHAR(2000) NOT NULL," + "INDEX(suspicious_uuid))");
 
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS deleted_entries(" + "id INT UNSIGNED NOT NULL UNIQUE PRIMARY KEY AUTO_INCREMENT," + "deleted_time TIMESTAMP NOT NULL," + "deleter_uuid VARCHAR(36) NOT NULL," + "archived_time TIMESTAMP NOT NULL," + "archiver_uuid VARCHAR(36) NOT NULL," + "created_time TIMESTAMP NOT NULL," + "creator_uuid VARCHAR(36) NOT NULL," + "suspicious_uuid VARCHAR(36) NOT NULL," + "entry VARCHAR(2000) NOT NULL," + "INDEX(suspicious_uuid))");
+
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS player_history(uuid CHAR(36) NOT NULL, name VARCHAR(16) NOT NULL, name_history MEDIUMTEXT DEFAULT NULL, PRIMARY KEY (uuid))");
         } catch (SQLException e) {
             logger.warn("SQLException while creating tables:", e);
         }

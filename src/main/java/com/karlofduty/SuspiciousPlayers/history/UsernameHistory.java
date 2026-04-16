@@ -22,16 +22,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class UsernameHistory {
-    private static final Type type = new TypeToken<Map<String, String>>() {
-    }.getType();
-    private static final Gson gson = new GsonBuilder().registerTypeAdapter(type, new NameMapDeserializer()).create();
+    private static final Type TYPE = new TypeToken<Map<String, String>>() {}.getType();
+    private static final Gson GSON = new GsonBuilder().registerTypeAdapter(TYPE, new NameMapDeserializer()).create();
 
     public static ConcurrentSkipListMap<String, String> deserialize(String string) {
-        return gson.fromJson(string, type);
+        return GSON.fromJson(string, TYPE);
     }
 
     public static String serialize(Map<String, String> map) {
-        return gson.toJson(map, type);
+        return GSON.toJson(map, TYPE);
     }
 
     public static ConcurrentSkipListMap<String, String> newHistory(String oldName, String newName) {
