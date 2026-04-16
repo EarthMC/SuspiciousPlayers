@@ -67,13 +67,16 @@ commands:
   tpnext:
     description: Teleports to the next player on the player list.
     usage: /tpnext
+    permission: susp.tp
   tpprev:
     description: Teleports to the previous player on the player list.
     usage: /tpprev
+    permission: susp.tp
   suspnext:
     description: Teleports to the next player on the susplist.
     usage: /suspnext
+    permission: susp.tp
   suspprev:
     description: Teleports to the previous player on the susplist.
     usage: /suspprev
-
+    permission: susp.tp
