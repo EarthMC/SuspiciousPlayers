@@ -2,6 +2,7 @@ package com.karlofduty.SuspiciousPlayers;
 
 import com.karlofduty.SuspiciousPlayers.commands.*;
 import com.karlofduty.SuspiciousPlayers.listeners.JoinListener;
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
@@ -93,13 +94,14 @@ public class SuspiciousPlayers extends JavaPlugin {
      * Sets up the mysql datasource
      */
     private void initializeDatasource() {
-        datasource = new HikariDataSource();
-        datasource.setDataSourceClassName("mariadb".equalsIgnoreCase(config.getString("database.type")) ? "org.mariadb.jdbc.MariaDbDataSource" : "com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
-        datasource.addDataSourceProperty("serverName", config.getString("database.hostname"));
-        datasource.addDataSourceProperty("port", config.getInt("database.port"));
-        datasource.addDataSourceProperty("databaseName", config.getString("database.name"));
-        datasource.addDataSourceProperty("user", config.getString("database.user"));
-        datasource.addDataSourceProperty("password", config.getString("database.password"));
+        final HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        hikariConfig.setJdbcUrl("jdbc:mysql://" + config.getString("database.hostname") + ":" + config.getString("database.port") + "/" + config.getString("database.name"));
+
+        hikariConfig.setUsername(config.getString("database.user"));
+        hikariConfig.setPassword(config.getString("database.password"));
+
+        this.datasource = new HikariDataSource(hikariConfig);
     }
 
     /**
