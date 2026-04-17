@@ -29,7 +29,7 @@ public class SuspPrevCommand implements CommandExecutor {
             return true;
         }
 
-        player.teleport(tpTarget);
+        player.teleportAsync(tpTarget.getLocation());
         player.sendMessage(TPHandler.getTPStatus(tpTarget, true));
         return true;
     }

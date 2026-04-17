@@ -29,7 +29,7 @@ public class TPPrevCommand implements CommandExecutor {
             return true;
         }
 
-        player.teleport(tpTarget);
+        player.teleportAsync(tpTarget.getLocation());
         sender.sendMessage(TPHandler.getTPStatus(tpTarget, false));
         return true;
     }
