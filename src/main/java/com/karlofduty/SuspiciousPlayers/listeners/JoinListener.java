@@ -67,7 +67,7 @@ public class JoinListener implements Listener {
                     }
                 }
 
-                try (PreparedStatement statement = c.prepareStatement(ActiveEntry.SELECT_PLAYER)) {
+                try (PreparedStatement statement = c.prepareStatement(ActiveEntry.SELECT_PLAYER, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                     statement.setString(1, event.getPlayer().getUniqueId().toString());
                     statement.setInt(2, 1000);
                     ResultSet results = statement.executeQuery();
